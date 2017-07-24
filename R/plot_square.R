@@ -18,8 +18,6 @@ plot_square <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend="metric
   }
   diag(mtx) <- 0
   jet.colors <- colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
-  require(reshape2)
-  require(ggplot2)
   sqplot <- ggplot(melt(mtx), aes(x=Var1, y=Var2, fill=value)) +
     geom_tile() +
     scale_fill_gradientn(colours=jet.colors(7), name=legend) +

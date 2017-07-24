@@ -1,8 +1,8 @@
 Package: fmriutils
-Title: fMRI Import Utilities
+Title: fMRI Derivative Utilities
 Version: 0.0.0.9000
 Authors@R: person("Eric", "Bridgeford", email = "ericwb95@gmail.com", role = c("aut", "cre"))
-Description: A package for working with fMRI derivatives.
+Description: A package for working with fMRI derivatives, particularly timeseries and graphs.
 Depends: R (>= 3.2.3)
 License: Apache License, Version 2.0
 Encoding: UTF-8
@@ -10,4 +10,6 @@ LazyData: true
 Imports:
   ggplot2,
   reshape2
-  
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

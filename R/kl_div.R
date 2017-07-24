@@ -2,8 +2,8 @@
 #'
 #' A function that computes the kullback leibler divergence for two distributions.
 #'
-#' @param a the first distribution
-#' @param b the second distribution
+#' @param a: the first distribution
+#' @param b: the second distribution
 #' @keywords kullback, leibler, divergence
 #' @author Eric Bridgeford
 #' @export

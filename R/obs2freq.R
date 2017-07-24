@@ -3,10 +3,10 @@
 #' A utility to convert timeseries data to amplitude spectra.
 #'
 #' @author Eric Bridgeford
-#' @param observations [[n]][nt, nroi]: a list of signals for n subjects, each containing nt timesteps and nroi rois.
-#' @param tr [1]: the repetition time (in sec) of the dataset. corresponds to the time to take a single timestep.
-#' @param lc [1]: the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
-#' @return amp_data [[n]][nt/2, nroi]: the amplitude spectrum of the dataset.
+#' @param observations: [[n]][nt, nroi] a list of signals for n subjects, each containing nt timesteps and nroi rois.
+#' @param tr: [1] the repetition time (in sec) of the dataset. corresponds to the time to take a single timestep.
+#' @param lc: [1] the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
+#' @return amp_data: [[n]][nt/2, nroi] the amplitude spectrum of the dataset.
 #' @export
 obs2amp <- function(observations, tr=NaN, lc=0.01, normalize=TRUE) {
   amp_data <- sapply(observations,  function(x) {
@@ -27,10 +27,10 @@ obs2amp <- function(observations, tr=NaN, lc=0.01, normalize=TRUE) {
 #' A utility to convert timeseries data to power spectra.
 #'
 #' @author Eric Bridgeford
-#' @param observations [[n]][nt, nroi]: a list of signals for n subjects, each containing nt timesteps and nroi rois.
-#' @param tr [1]: the repetition time (in sec) of the dataset. corresponds to the time to take a single timestep.
-#' @param lc [1]: the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
-#' @return pow_data [[n]][nt/2, nroi]: the power spectrum of the dataset.
+#' @param observations: [[n]][nt, nroi] a list of signals for n subjects, each containing nt timesteps and nroi rois.
+#' @param tr: [1] the repetition time (in sec) of the dataset. corresponds to the time to take a single timestep.
+#' @param lc: [1] the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
+#' @return pow_data: [[n]][nt/2, nroi] the power spectrum of the dataset.
 #' @export
 obs2pow <- function(observations, tr=NaN, lc=0.01, normalize=TRUE) {
   pow_data <- sapply(observations,  function(x) {

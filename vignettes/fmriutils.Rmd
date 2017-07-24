@@ -1,0 +1,113 @@
+---
+title: "fMRI utilities"
+author: "Eric Bridgefordr"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Beta Graph Estimation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  header-includes:
+   - \usepackage{amsfonts}
+   - \usepackage{amsmath}
+   - \usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+---
+
+In this page, we will cover much of the basic functionality of the `fmriutils` package, including loading, processing, visualizing, and manipulating data.
+
+# Loading Data
+
+In this section, we will cover the basics of loading data. For this tutorial, we assume that we have the following output structure produced by our pipeline:
+
+```{eval=FALSE}
++ outputs/
+    + BNU1/
+        + graphs/
+            + desikan-2mm/  # atlas name
+                + sub-0025864_ses-1_desikan-2mm.graphml
+                + ...
+            + aal-2mm/  # atlas name
+                + sub-0025864_ses-1_aal-2mm.graphml
+                + ...
+        + timeseries/
+            + desikan-2mm/
+                + sub-0025864_ses-1_desikan-2mm.rds
+                + ...
+            + aal-2mm/
+                + sub-0025864_ses-1_aal-2mm.rds
+                + ...
+    + DC1/
+        + graphs/
+            + desikan-2mm/  # atlas name
+                + sub-0025516_ses-1_desikan-2mm.graphml
+                + ...
+            + aal-2mm/  # atlas name
+                + sub-0025516_ses-1_aal-2mm.graphml
+                + ...
+        + timeseries/
+            + desikan-2mm/
+                + sub-0025516_ses-1_desikan-2mm.rds
+                + ...
+            + aal-2mm/
+                + sub-0025516_ses-1_aal-2mm.rds
+                + ...
+```
+
+That is, we have our directories structured such that all of our timeseries/graphs for a single dataset, single atlas are in a single folder. This is not a "hard requirement" for using the fmriutils package, but it will make our life much easier down the line, and will allow us to easily aggregate dataset and atlas-level identification information associated with our data. Assuming that we are in the same directory as the `outputs/` folder, we can load our data as follows for a single dataset, single atlas:
+
+```{r}
+# the path to our graphs or timeseries
+sig_inpath <- './outputs/BNU1/timeseries/desikan-2mm/'
+gra_inpath <- './outputs/BNU1/graphs/desikan-2mm/'
+
+# get vectors where each element is a file name
+sig_names <- list.files(sig_inpath, pattern="\\.rds", full.names=TRUE)
+gra_names <- list.files(gra_inpath, pattern="\\.graphml", full.names=TRUE)
+
+# open up the rds timeseries files
+# note that our file-ids are delimimted by any special characters
+# ., -, or _, so or sub id is at 2 and our session id at 4
+signalobj <- open_timeseries(sig_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm', sub_pos = 2, ses_pos=4, exclude = FALSE)
+
+graphobj <- open_timeseries(gra_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm', sub_pos = 2, ses_pos=4, exclude = FALSE)
+```
+
+If we have multiple datasets, and multiple atlases, we can easily aggregate using this structuring of inputs:
+
+```{r}
+datasets <- c('BNU1', 'DC1')
+atlases <- c('desikan-2mm', 'aal-2mm')
+
+# initialize data structures to save the derivatives and names
+timeseries <- list()
+subject_ids <- c()
+session_ids <- c()
+dataset_ids <- c()
+
+# iterate over datasets
+for (dataset in datasets) {
+  # iterate over atlases
+  for (atlas in atlases) {
+    # aggregate the timeseries names
+    sig_names <- list.files(sig_inpath, pattern="\\.rds",
+                            full.names=TRUE)
+
+    # open the timeseries we have data for
+    signalobj <- open_timeseries(sig_names, dataset_id = dataset,
+                                 atlas_id = atlas, sub_pos = 2,
+                                 ses_pos=4, exclude = FALSE)
+    # append outputs to our initial data structures
+    timeseries <- append(timeseries, signalobj$ts)
+    dataset_ids <- c(dataset_ids, signalobj$dataset)
+    atlas_ids <- c(atlas_ids, signalobj$atlas)
+    subject_ids <- c(subject_ids, signalobj$subjects)
+    session_ids <- c(session_ids, signalobj$sessions)
+  }
+}
+```
+
+# Processing Data
+
+# Visualizing Data
+
+# Manipulating Data
