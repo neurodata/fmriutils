@@ -8,7 +8,7 @@
 #' @param ylabel="ROIs": the y label for the square plot.
 #' @param legend="": the legend title for the square plot.
 #' @param itype="sq": the shape of the input. If "sq", the plot will be generated as is for the input signal. If "ts", we will assume the input is observationsxfeatures, and will correlate the features first.
-#' @param fsize=10: the default font size for the plot text.
+#' @param fsize=12: the default font size for the plot text.
 #' @return sqplot : a plot of the square.
 #' @author Eric Bridgeford
 #' @export
