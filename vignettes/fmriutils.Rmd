@@ -74,9 +74,9 @@ sig_names <- list.files(sig_inpath, pattern="\\.rds", full.names=TRUE)
 gra_names <- list.files(gra_inpath, pattern="\\.graphml", full.names=TRUE)
 
 # open up the rds timeseries files
-signalobj <- open_timeseries(sig_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
+signalobj <- fmriu.io.open_timeseries(sig_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
 
-graphobj <- open_timeseries(gra_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
+graphobj <- fmriu.io.open_graphs(gra_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
 ```
 
 If we have multiple datasets, and multiple atlases, we can easily aggregate using this structuring of inputs. For example, in the example above, we may want to aggregate over the BNU1 and DC1 datasets, and aggregate over the desikan-2mm and aal-2mm atlases:
@@ -101,7 +101,7 @@ for (dataset in datasets) {
                             full.names=TRUE)
 
     # open the timeseries we have data for
-    signalobj <- open_timeseries(sig_names, dataset_id = dataset,
+    signalobj <- fmriu.io.open_timeseries(sig_names, dataset_id = dataset,
                                  atlas_id = atlas, sub_pos = 2,
                                  ses_pos=4, exclude = FALSE)
     # append outputs to our initial data structures
@@ -119,8 +119,75 @@ and our resulting timeseries list, and vectors for subject/session/task/dataset 
 
 # Processing Data
 
-Moreover, as a user it is often valuable to be able to process your timeseries data into other usable formats. 
+## Temporal Domain
+
+Moreover, as a user it is often valuable to be able to process your timeseries data into other usable formats. For example, let's assume we have loaded in the timeseries data above into `timeseries`, and we wish to convert each timeseries to a correlation matrix. we can do this easily using our temporal functions:
+
+```{r, eval=FALSE}
+correlations <- fmriu.time.obs2corr(timeseries)  # converts timeseries to correlation matrices
+```
+
+## Frequency Domain
+
+On the other hand, let's say we want to obtain the frequency-domain components for the power or amplitude spectrum. We provide options for also adding bandpassing as desired, but these are not necessary to input. Note that in order to apply bandpassing, you must pass a TR (the repetition time of a single slice of the 4d-data) and one of a lower cutoff or a upper cutoff. Additionally, we provide the ability to normalize the obtained frequency spectra such that per ROI, the bin intensities sum to one. This allows us to later use the frequency spectra as a pdf, such as computing the pairwise KL-divergences between spectra for each pair of ROIs. We can make this call very simply:
+
+```{r, eval=FALSE}
+# convert each observation to the power spectrum, and highpass filter above .01 Hz
+# also normalizes so each spectrum sums to 1
+freq <- fmriu.freq.obs2freq(timeseries, tr=2.5, lc = 0.01, hc=NaN, normalize=TRUE, spectrum='pow')
+```
+
+Next, we might want to compute the pairwise divergence, noting that we must have called `obs2freq` with the normalize option set to `TRUE`:
+
+```{r, eval=FALSE}
+div <- fmriu.freq.freq2div(freq)
+```
+
+These two commands can be combined with the below function:
+
+```{r, eval=FALSE}
+div <- fmriu.freq.obs2div(timeseries, tr=2.5, lc=0.01, hc=NaN, spectrum='pow')
+```
 
 # Visualizing Data
 
+
+
 # Manipulating Data
+
+## Z-Scoring
+
+It is often valuable to z-score data; that is, per ROI, to assign a z-score based on the intensity at a given timestep.
+
+We can convert a timeseries/frequency spectra to the z-scored values:
+
+```{r, eval=FALSE}
+z_ts <- obs2zsc(timeseries)
+```
+
+## Converting between Arrays and Lists
+
+Many people choose different representations of their data. The most easy to use is to collect the data using a list-wise representation (where each list element is a single subject's data). Ie:
+
+```
+ts_list   # [[nsubs]] list elements, where each element is an array with dimensions [nt, nroi] for n timesteps and nroi ROIs
+gra_list       # [[nsubs]] list elements, where each element is an array with dimensions [nroi, nroi] for nroi ROIs
+```
+
+This data format has several options. First, we can easily manipulate lists using the `_apply` family of functions, which provide C-bindings for things like looping, axis-wise operations, etc, and are a vast improvement speed wise over alternative methods. Moreover, often times in a dataset we will not necessarily have equivalently sized objects, but will still want to perform summary statistics. For example, consider the aggregation above, where we loaded timeseries data from a variety of datasets and parcellation atlases. Each dataset might have varying numbers of timesteps, and each parcellation atlas may have a different number of ROIs. This format would not be possible to enforce with array-wise manipulations.
+
+As this data format is quite unique to R, we also allow users easy conversions to more matlab-esque representations that may be better tailored to their algorithms. We also provide array-wise representations:
+
+```
+ts_array  # [nt, nroi, nsubs]-dimensional array for nt timesteps, nroi ROIs, and nsubs subjects
+gra_array  # [nroi, nroi, nsubs]- dimensional array for nroi ROIs and nsubs subjects
+```
+
+Note that many functions will expect ONLY the list-wise representations internally. However, you can convert between the two formats easily using the simple utilities below:
+
+```{r, eval=FALSE}
+ts_list <- fmriu.array2list(ts_array)
+ts_array <- fmriu.list2array(ts_list)
+```
+
+Use this conversion with caution. The list representation elements are stored with metadata (the original filenames), so some of this data may be lost transferring back and forth between lists and arrays, so we recommend only using arrays when absolutely necessary.

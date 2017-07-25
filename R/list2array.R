@@ -10,7 +10,7 @@
 #' test[[1]] <- matrix(1:35, nrow=5, ncol=7)
 #' test[[2]] <- matrix(36:70, nrow=5, ncol=7)
 #' test[[3]] <- matrix(71:105, nrow=5, ncol=7)
-#' list2array(test)  # has dimensions [5, 7, 3]
+#' fmriu.list2array(test)  # has dimensions [5, 7, 3]
 #' @export
 #' @seealso \code{\link{abind}} \code{\link{array2list}}
 #'

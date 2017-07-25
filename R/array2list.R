@@ -7,7 +7,7 @@
 #' @return list_in a list with n elements of dimensions [n x m].
 #' @examples
 #' test <- array(1:105, c(5, 7, 3))
-#' array2list(test)  # has 3 elements with dimensions 5x7
+#' fmriu.array2list(test)  # has 3 elements each with dimensions 5x7
 #' @export
 #' @seealso \code{\link{plyr}} \code{\link{list2array}}
 #'
