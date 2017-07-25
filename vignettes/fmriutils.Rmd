@@ -162,7 +162,7 @@ It is often valuable to z-score data; that is, per ROI, to assign a z-score base
 We can convert a timeseries/frequency spectra to the z-scored values:
 
 ```{r, eval=FALSE}
-z_ts <- obs2zsc(timeseries)
+z_ts <- fmriu.obs2zsc(timeseries)
 ```
 
 ## Converting between Arrays and Lists
