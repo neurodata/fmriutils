@@ -8,12 +8,13 @@
 #' @param atlas_id="": [1] the atlas id in the filenames.
 #' @param fmt="graphml" : a parameter idicating the format for graphs to be read in as.
 #' @param verbose=FALSE : whether to print the iteration being loaded.
+#' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
 #' @return gr: [[subs]][nt, nroi] the gr loaded from the specified file names. list of n subjects, each with nt timesteps and nroi rois
 #' @return dataset: [n] a vector of the dataset ids for each subject.
 #' @return subjects: [n] the subject ids
 #' @return sessions: [n] the run ids
 #' @export
-open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphml', verbose=FALSE) {
+fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphml', verbose=FALSE, rtype='list') {
   print("opening graphs...")
   subjects <- vector("character", length(fnames))
   dataset <- rep(dataset_id, length(fnames))
@@ -34,6 +35,9 @@ open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphml', verbo
     subjects[i] <- str_extract(basename, 'sub(.?)+?(?=_)')
     sessions[i] <- str_extract(basename, 'ses(.?)+?(?=_)')
     tasks[i] <- str_extract(basename, 'task(.?)+?(?=_)')
+  }
+  if (rtype != 'list') {
+    gr = fmriu.list2array(gr)
   }
   return(list(graphs=gr, dataset=dataset, atlas=atlas, subjects=subjects,
               sessions=sessions, tasks=tasks))

@@ -14,7 +14,7 @@
 #' @export
 #' @seealso \code{\link{abind}} \code{\link{array2list}}
 #'
-list2array <- function(list_in) {
+fmriu.list2array <- function(list_in) {
   require(abind)
   array_out <- do.call(abind, c(list_in, list(along=3)))
   return(array_out)

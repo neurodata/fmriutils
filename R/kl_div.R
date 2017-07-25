@@ -7,7 +7,7 @@
 #' @keywords kullback, leibler, divergence
 #' @author Eric Bridgeford
 #' @export
-kl_div <- function(a, b) {
+fmriu.kl_div <- function(a, b) {
   disc_div <- a*log(a/b)  # KL divergence at each point
   t <- dim(disc_div)[1]
   disc_div[a == 0 & b == 0] <- 0  # replace divide by zeros, or log(0)s, with 0

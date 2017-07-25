@@ -12,7 +12,7 @@
 #' @return sqplot : a plot of the square.
 #' @author Eric Bridgeford
 #' @export
-plot_square <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend="metric", itype="sq", fsize=12) {
+fmriu.plot.plot_square <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend="metric", itype="sq", fsize=12) {
   if (itype == "ts") {
     mtx <- abs(cor(mtx))  # if a timeseries is passed in, correlate the features first
   }

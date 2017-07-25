@@ -11,7 +11,7 @@
 #' @export
 #' @seealso \code{\link{plyr}} \code{\link{list2array}}
 #'
-array2list <- function(list_in) {
+fmriu.array2list <- function(list_in) {
   require(plyr)
   array_out <- alply(list_in, 3)
   return(array_out)

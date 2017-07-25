@@ -1,71 +1,64 @@
-#' Observations to Amplitude Spectrum
+#' Observations to Frequency Spectrum
 #'
-#' A utility to convert timeseries data to amplitude spectra.
-#'
-#' @author Eric Bridgeford
-#' @param observations: [[n]][nt, nroi] a list of signals for n subjects, each containing nt timesteps and nroi rois.
-#' @param tr: [1] the repetition time (in sec) of the dataset. corresponds to the time to take a single timestep.
-#' @param lc: [1] the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
-#' @return amp_data: [[n]][nt/2, nroi] the amplitude spectrum of the dataset.
-#' @export
-obs2amp <- function(observations, tr=NaN, lc=0.01, normalize=TRUE) {
-  amp_data <- sapply(observations,  function(x) {
-    amp_sig <- highpass_fft(x, tr=tr, lc=lc)
-    amp_sig <- 2*abs(amp_sig)
-    # normalized
-    if (normalize) {
-      amp_sig <- amp_sig %*% diag(1/apply(X=amp_sig, MARGIN=2, FUN=sum))
-    }
-    return(amp_sig)
-  }, simplify=FALSE, USE.NAMES=TRUE)
-
-  return(amp_data)
-}
-
-#' Observations to Power Spectrum
-#'
-#' A utility to convert timeseries data to power spectra.
+#' A utility to convert timeseries data to frequency spectra.
 #'
 #' @author Eric Bridgeford
 #' @param observations: [[n]][nt, nroi] a list of signals for n subjects, each containing nt timesteps and nroi rois.
 #' @param tr: [1] the repetition time (in sec) of the dataset. corresponds to the time to take a single timestep.
 #' @param lc: [1] the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
-#' @return pow_data: [[n]][nt/2, nroi] the power spectrum of the dataset.
+#' @param hc: [1] the higher cutoff (in Hz) above which the fourier domain components will be set to zero.
+#' @param spectrum='amp': the frequency spectrum to use for computations. Can be 'amp' or 'pow'.
+#' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
+#' @return amp_data: [[n]][nt/2, nroi] the frequency spectrum of the dataset.
 #' @export
-obs2pow <- function(observations, tr=NaN, lc=0.01, normalize=TRUE) {
-  pow_data <- sapply(observations,  function(x) {
-    pow_sig <- highpass_fft(x, tr=tr, lc=lc)
-    # one sided
-    pow_sig <- pow_sig^2
-    # normalized
-    if (normalize) {
-      pow_sig <- pow_sig %*% diag(1/apply(X=pow_sig, MARGIN=2, FUN=sum))
+fmriu.freq.obs2freq <- function(observations, tr=NaN, lc=0.01, hc=NaN, normalize=TRUE, spectrum='amp', rtype='list') {
+  freq_data <- sapply(observations,  function(x) {
+    # bandpass filter if necessary; the bandpass function will take care of checking whether desired
+    x <- fmriu.freq.bandpass_fft(x, tr=tr, lc=lc, hc=hc)
+    if (spectrum == 'amp') {  # amp spectrum is 2*|x|
+      x <- 2*abs(x)
+    } else {  # power spectrum is x.^2
+      x <- x^2
     }
-    return(pow_sig)
+    # normalized
+    if (normalize) {  # normalize so that all entries sum to one (ie, makes it a pdf)
+      x <- x %*% diag(1/apply(X=x, MARGIN=2, FUN=sum))
+    }
+    return(x)
   }, simplify=FALSE, USE.NAMES=TRUE)
-
-  return(pow_data)
+  if (rtype != 'list') {
+    freq_data <- fmriu.list2array(freq_data)
+  }
+  return(freq_data)
 }
 
-#' Highpass Fast Fourier Transform
+#' Bandpass Fourier Transform
 #'
-#' A utility function for computing the highpass-filtered, single-sided, real fourier transform.
+#' A utility function for bandpass-fourier-transforming timeseries data.
 #'
 #' @author Eric Bridgeford
 #' @param signal [nbin, nroi]: an input signal.
 #' @param tr [1]: the repetition time of the data (in seconds).
 #' @param lc [1]: the lower cutoff (in Hz) for the fourier transform. fourier components below this will be set to 0.
+#' @param hc [1]: the high cutoff (in Hz) for the fourier transform. fourier components above this will be set to 0.
 #' @return f [nbin/2, nroi]: the single-sided frequency domain of the signal per roi.
 #' @export
-highpass_fft <- function(signal, tr=NaN, lc=NaN) {
-  nt <- dim(signal)[1]
-  x <- apply(X=signal, MARGIN=c(2), FUN=fft)/nt
-  if (!is.nan(tr) && !is.nan(lc)) {
+fmriu.freq.bandpass_fft <- function(signal, tr=NaN, lc=NaN, hc=NaN) {
+  # we are given a tr, and at least one of a lower or upper cutoff
+  if (! is.nan(tr) && (!is.nan(lc) || !is.nan(hc))) {
+    nt <- dim(signal)[1]
+    signal <- apply(X=signal, MARGIN=c(2), FUN=fft)/nt
     fs <- 1/tr  # the sampling frequency
-    freq <- fs*seq(from=0, to=ceiling(nt/2)-1)/nt
-    x[freq < lc] <- 0
+    freq <- fs*seq(from=0, to=ceiling(nt/2)-1)/nt  # compute frequency per bin
+    # remove appropriate fourier components depending on lc and hc desired
+    if (!is.nan(lc)) {
+      signal[freq < lc] <- 0
+    }
+    if (!is.nan(hc)) {
+      signal[freq > hc] <- 0
+    }
+    signal <- Re(abs(signal))
+    signal <- signal[1:ceiling(nt/2),,drop=FALSE]
   }
-  x <- Re(abs(x))
-  f <- x[1:ceiling(nt/2),,drop=FALSE]
-  return(f)
+  return(signal)
 }

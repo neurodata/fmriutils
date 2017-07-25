@@ -11,7 +11,7 @@
 #' @return tsplot : a plot of the timeseries.
 #' @author Eric Bridgeford
 #' @export
-plot_timeseries <- function(ts, title="",xlabel="TRs", ylabel="intensity", legend="ROI", fsize=12) {
+fmriu.plot.plot_timeseries <- function(ts, title="",xlabel="TRs", ylabel="intensity", legend="ROI", fsize=12) {
   tsm = melt(ts)
   colnames(tsm) <- c(xlabel, legend, ylabel)
   tsplot <- ggplot(data=tsm, aes_string(x=xlabel, y=ylabel, group=legend, color=legend)) +
