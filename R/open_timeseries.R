@@ -1,48 +1,36 @@
 #' Open Timeseries
-#' A utility to open timeseries information from a dataset.
+#'
+#' A utility to open timeseries information from a dataset. Assumes data is formatted by the BIDs spec.
+#' This means that derivatives are named as follows: sub-[#####]_task-[abcde]_ses-[#####]_(generic info).file
+#'
 #' @param fnames: [n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).rds
 #' @param dataset_id: [1] the dataset id in the filenames.
 #' @param atlas_id: [1] the atlas id in the filenames.
-#' @param scan_pos: [1] the 1-indexed position of the subject id in the filenames, assuming - or _ delimiting in the filename
-#' @param run_pos: [1] the position of the run information in the filenames
-#' @param exclude=FALSE: a parameter idicating whether to ignore timeseries that contain missing data.
 #' @return ts: [[subs]][nt, nroi] the ts loaded from the specified file names. list of n subjects, each with nt timesteps and nroi rois
 #' @return dataset: [n] a vector of the dataset ids for each subject.
 #' @return subjects: [n] the subject ids
 #' @return sessions: [n] the run ids
 #' @export
-open_timeseries <- function(fnames, dataset_id="", atlas_id="", sub_pos=2, ses_pos=4, exclude=FALSE) {
+open_timeseries <- function(fnames, dataset_id="", atlas_id="", verbose=FALSE) {
   print("opening timeseries...")
   subjects <- vector("character", length(fnames))
   dataset <- rep(dataset_id, length(fnames))
   atlas <- rep(atlas_id, length(fnames))
   sessions <- vector("character", length(fnames))
-  numscans<-length(fnames)
+  tasks <- vector("character", length(fnames))
   ts <- list()
-  counter <- 0
   for (i in 1:length(fnames)) {
-    tts <- readRDS(fnames[i]) # read the timeseries from the filename
     basename <- basename(fnames[i])     # the base name of the file
-    base_split <- strsplit(basename, "\\.|-|_") # parse out the subject, which will be after the study name
-    name <- unlist(base_split)
-
-    tts[is.nan(tts)] <- 0
-    if (exclude == FALSE) {
-    # if (!any(apply(tts, MARGIN=1, function(x) sum(abs(x))) == 0)) {
-      counter <- counter + 1
-      ts[[basename]] <-t(tts)
-      subjects[counter] <- name[sub_pos] # subject name must be a string, so do not convert to numeric
-      sessions[counter] <- name[run_pos]
-    } else {
-      if (!any(apply(tts, MARGIN=1, function(x) sum(abs(x))) == 0)) {
-        counter <- counter + 1
-        ts[[counter]] <-t(tts)
-        subjects[counter] <- name[sub_pos] # subject name must be a string, so do not convert to numeric
-        sessions[counter] <- name[run_pos]
-      }
+    if (verbose) {
+      print(paste('Loading', basename, '...'))
     }
+    tts <- readRDS(fnames[i]) # read the timeseries from the filename
+    tts[is.nan(tts)] <- 0  # missing entries substituted with 0s
+    ts[[basename]] <-t(tts)
+    subjects[i] <- str_extract(basename, 'sub(.?)+?(?=_)')
+    sessions[i] <- str_extract(basename, 'ses(.?)+?(?=_)')
+    tasks[i] <- str_extract(basename, 'task(.?)+?(?=_)')
   }
-  pack <- list(ts=ts, dataset=dataset, atlas=atlas, subjects=subjects[1:counter], sessions=sessions[1:counter])# pack up the dataset, subject, and run ids witht the timeseries
-  return(pack)
+  return(list(ts=ts, dataset=dataset, atlas=atlas, subjects=subjects,
+              sessions=sessions, tasks=tasks))
 }
-

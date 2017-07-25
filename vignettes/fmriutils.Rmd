@@ -1,6 +1,6 @@
 ---
 title: "fMRI utilities"
-author: "Eric Bridgefordr"
+author: "Eric Bridgeford"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -13,13 +13,21 @@ vignette: >
    - \usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
 In this page, we will cover much of the basic functionality of the `fmriutils` package, including loading, processing, visualizing, and manipulating data.
 
 # Loading Data
 
+## BIDS Spec
+
+When working with data, it is often advantageous to apply a standard specification, including directory organization, naming convention, required data, etc. For the purposes of simplicity, we will use the [BIDs specification](http://bids.neuroimaging.io/), a spec designed for magnetic-resonance derivatives of multiple modalities. The general format of files is: `sub-[####]_task-[abcd...]_ses-[####]_detailed_info.ftype`
+
 In this section, we will cover the basics of loading data. For this tutorial, we assume that we have the following output structure produced by our pipeline:
 
-```{eval=FALSE}
+```{r, eval=FALSE}
 + outputs/
     + BNU1/
         + graphs/
@@ -55,7 +63,8 @@ In this section, we will cover the basics of loading data. For this tutorial, we
 
 That is, we have our directories structured such that all of our timeseries/graphs for a single dataset, single atlas are in a single folder. This is not a "hard requirement" for using the fmriutils package, but it will make our life much easier down the line, and will allow us to easily aggregate dataset and atlas-level identification information associated with our data. Assuming that we are in the same directory as the `outputs/` folder, we can load our data as follows for a single dataset, single atlas:
 
-```{r}
+```{r, eval=FALSE}
+require(fmriutils)
 # the path to our graphs or timeseries
 sig_inpath <- './outputs/BNU1/timeseries/desikan-2mm/'
 gra_inpath <- './outputs/BNU1/graphs/desikan-2mm/'
@@ -65,16 +74,14 @@ sig_names <- list.files(sig_inpath, pattern="\\.rds", full.names=TRUE)
 gra_names <- list.files(gra_inpath, pattern="\\.graphml", full.names=TRUE)
 
 # open up the rds timeseries files
-# note that our file-ids are delimimted by any special characters
-# ., -, or _, so or sub id is at 2 and our session id at 4
-signalobj <- open_timeseries(sig_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm', sub_pos = 2, ses_pos=4, exclude = FALSE)
+signalobj <- open_timeseries(sig_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
 
-graphobj <- open_timeseries(gra_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm', sub_pos = 2, ses_pos=4, exclude = FALSE)
+graphobj <- open_timeseries(gra_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
 ```
 
-If we have multiple datasets, and multiple atlases, we can easily aggregate using this structuring of inputs:
+If we have multiple datasets, and multiple atlases, we can easily aggregate using this structuring of inputs. For example, in the example above, we may want to aggregate over the BNU1 and DC1 datasets, and aggregate over the desikan-2mm and aal-2mm atlases:
 
-```{r}
+```{r, eval=FALSE}
 datasets <- c('BNU1', 'DC1')
 atlases <- c('desikan-2mm', 'aal-2mm')
 
@@ -83,6 +90,7 @@ timeseries <- list()
 subject_ids <- c()
 session_ids <- c()
 dataset_ids <- c()
+task_ids <- c()
 
 # iterate over datasets
 for (dataset in datasets) {
@@ -102,11 +110,16 @@ for (dataset in datasets) {
     atlas_ids <- c(atlas_ids, signalobj$atlas)
     subject_ids <- c(subject_ids, signalobj$subjects)
     session_ids <- c(session_ids, signalobj$sessions)
+    task_ids <- c(task_ids, signalobj$tasks)
   }
 }
 ```
 
+and our resulting timeseries list, and vectors for subject/session/task/dataset level parameters, will be organized appropriately. NOTE: when attempting to aggregate outputs as was just described, make sure your filenames are descriptive enough such that no two files that you add have the same filename character for character. For example, in the examples above, we have multiple versions of subject 0025864 session 1 timeseries data (1 for desikan-2mm and 1 for aal-2mm), but since each timeseries is uniquely identified with the atlas name, we will not have any overlap. 
+
 # Processing Data
+
+Moreover, as a user it is often valuable to be able to manipulate your data into other desirable formats. 
 
 # Visualizing Data
 
