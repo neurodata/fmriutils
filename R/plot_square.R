@@ -9,14 +9,17 @@
 #' @param legend="": the legend title for the square plot.
 #' @param itype="sq": the shape of the input. If "sq", the plot will be generated as is for the input signal. If "ts", we will assume the input is observationsxfeatures, and will correlate the features first.
 #' @param fsize=12: the default font size for the plot text.
+#' @param rem_diag=FALSE: whether to remove the diagonal from the plot.
 #' @return sqplot : a plot of the square.
 #' @author Eric Bridgeford
 #' @export
-fmriu.plot.plot_square <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend="metric", itype="sq", fsize=12) {
+fmriu.plot.plot_square <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend="metric", itype="sq", fsize=12, rem_diag=FALSE) {
   if (itype == "ts") {
     mtx <- abs(cor(mtx))  # if a timeseries is passed in, correlate the features first
   }
-  diag(mtx) <- 0
+  if (rem_diag) {
+    diag(mtx) <- 0
+  }
   jet.colors <- colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
   sqplot <- ggplot(melt(mtx), aes(x=Var1, y=Var2, fill=value)) +
     geom_tile() +
