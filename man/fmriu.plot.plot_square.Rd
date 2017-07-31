@@ -5,7 +5,8 @@
 \title{Square plot}
 \usage{
 fmriu.plot.plot_square(mtx, title = "", xlabel = "ROI", ylabel = "ROI",
-  legend = "metric", itype = "sq", fsize = 12, rem_diag = FALSE)
+  legend = "metric", itype = "sq", fsize = 12, rem_diag = FALSE,
+  limits = c(0, 1))
 }
 \arguments{
 \item{in}{[nroi, nroi] or [nt, nroi]: the input. Can either be a square matrix of featuresxfeatures, or an array of observationsxfeatures (see itype parameter).}
@@ -23,6 +24,8 @@ fmriu.plot.plot_square(mtx, title = "", xlabel = "ROI", ylabel = "ROI",
 \item{fsize=12:}{the default font size for the plot text.}
 
 \item{rem_diag=FALSE:}{whether to remove the diagonal from the plot.}
+
+\item{limits=c(0, }{1): the limits for the fill color in the heatmap of our matrix.}
 }
 \value{
 sqplot : a plot of the square.
