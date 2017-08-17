@@ -10,7 +10,8 @@ LazyData: true
 Imports:
   ggplot2,
   reshape2,
-  stringr
+  stringr,
+  igraph
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr

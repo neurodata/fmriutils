@@ -7,17 +7,20 @@
 #' @param tr: [1] the repetition time (in sec) of the dataset. corresponds to the time to take a single timestep.
 #' @param lc: [1] the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
 #' @param hc: [1] the higher cutoff (in Hz) above which the fourier domain components will be set to zero.
-#' @param spectrum='amp': the frequency spectrum to use for computations. Can be 'amp' or 'pow'.
+#' @param spectrum='amp': the frequency option to use for computations. Can be 'amp' (amplitude) or 'pow' (power).
 #' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
 #' @return amp_data: [[n]][nt/2, nroi] the frequency spectrum of the dataset.
 #' @export
 fmriu.freq.obs2freq <- function(observations, tr=NaN, lc=0.01, hc=NaN, normalize=TRUE, spectrum='amp', rtype='list') {
+  if (!(spectrum %in% c('amp', 'pow'))) {
+    stop('You have passed an invalid frequency option. Options are: [\'amp\', \'pow\'].')
+  }
   freq_data <- sapply(observations,  function(x) {
     # bandpass filter if necessary; the bandpass function will take care of checking whether desired
     x <- fmriu.freq.bandpass_fft(x, tr=tr, lc=lc, hc=hc)
     if (spectrum == 'amp') {  # amp spectrum is 2*|x|
       x <- 2*abs(x)
-    } else {  # power spectrum is x.^2
+    } else if (spectrum == 'pow') {  # power spectrum is x.^2
       x <- x^2
     }
     # normalized
@@ -49,7 +52,7 @@ fmriu.freq.bandpass_fft <- function(signal, tr=NaN, lc=NaN, hc=NaN) {
     nt <- dim(signal)[1]
     signal <- apply(X=signal, MARGIN=c(2), FUN=fft)/nt
     fs <- 1/tr  # the sampling frequency
-    freq <- fs*seq(from=0, to=ceiling(nt/2)-1)/nt  # compute frequency per bin
+    freq <- fmriu.freq.freq_seq(fs, nt)  # compute frequency per bin
     # remove appropriate fourier components depending on lc and hc desired
     if (!is.nan(lc)) {
       signal[freq < lc] <- 0
@@ -61,4 +64,16 @@ fmriu.freq.bandpass_fft <- function(signal, tr=NaN, lc=NaN, hc=NaN) {
     signal <- signal[1:ceiling(nt/2),,drop=FALSE]
   }
   return(signal)
+}
+
+#' Frequency per Bin
+#'
+#' A utility to compute the frequency per bin of a frequency-domain signal.
+#'
+#' @param fs [1]: the sampling frequency of the signal.
+#' @param nt [1]: the number of bins.
+#' @return freq_bin [nt/2]: the frequency per bin of the frequency-domain signal.
+#' @export
+fmriu.freq.freq_seq <- function(fs, nt) {
+  return(fs*seq(from=0, to=ceiling(nt/2)-1)/nt)
 }

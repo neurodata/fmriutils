@@ -5,7 +5,7 @@
 \title{observations to Divergence}
 \usage{
 fmriu.freq.obs2div(observations, tr = NaN, lc = 0.01, hc = NaN,
-  spectrum = "amp")
+  spectrum = "amp", rtype = "list")
 }
 \arguments{
 \item{observations:}{[[n]][nt, nroi] a list of signals for n subjects, each containing nt timesteps and nroi rois.}

@@ -5,12 +5,14 @@
 \title{Observations to Correlation
 a utility to convert timeseries to correlation matrices.}
 \usage{
-fmriu.time.obs2corr(observations, rtype = "list")
+fmriu.time.obs2corr(observations, rtype = "list", include_diag = FALSE)
 }
 \arguments{
 \item{observations:}{[[subs]][timesteps, rois] a list of observations for a particular subject.}
 
 \item{rtype='list':}{the type of output to return. Options are 'list' and 'array'.}
+
+\item{include_diag=FALSE:}{whether to include the diagonal in the result.}
 }
 \value{
 corr_data: [[subs]][rois, rois] the locally correlated roi timeseries.

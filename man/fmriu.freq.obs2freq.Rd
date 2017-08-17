@@ -16,7 +16,7 @@ fmriu.freq.obs2freq(observations, tr = NaN, lc = 0.01, hc = NaN,
 
 \item{hc:}{[1] the higher cutoff (in Hz) above which the fourier domain components will be set to zero.}
 
-\item{spectrum='amp':}{the frequency spectrum to use for computations. Can be 'amp' or 'pow'.}
+\item{spectrum='amp':}{the frequency option to use for computations. Can be 'amp' (amplitude) or 'pow' (power).}
 
 \item{rtype='list':}{the type of output to return. Options are 'list' and 'array'.}
 }

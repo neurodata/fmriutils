@@ -1,24 +1,24 @@
-#' Square plot
+#' Graph plot
 #'
-#' A function that plots a square matrix. Good for things like Correlation matrices.
+#' A function that plots a graph.
 #'
-#' @param in [nroi, nroi] or [nt, nroi]: the input. Can either be a square matrix of featuresxfeatures, or an array of observationsxfeatures (see itype parameter).
+#' @param mtx [nroi, nroi] or [nt, nroi]: the input. Can either be a square matrix of featuresxfeatures, or a timeseries of observationsxfeatures (see itype parameter).
 #' @param title="": the title for the square plot.
 #' @param xlabel="ROIs": the x label for the square plot.
 #' @param ylabel="ROIs": the y label for the square plot.
 #' @param legend="": the legend title for the square plot.
 #' @param itype="sq": the shape of the input. If "sq", the plot will be generated as is for the input signal. If "ts", we will assume the input is observationsxfeatures, and will correlate the features first.
 #' @param fsize=12: the default font size for the plot text.
-#' @param rem_diag=FALSE: whether to remove the diagonal from the plot.
+#' @param include_diag=FALSE: whether to include the diagonal from the plot.
 #' @param limits=c(0, 1): the limits for the fill color in the heatmap of our matrix.
 #' @return sqplot : a plot of the square.
 #' @author Eric Bridgeford
 #' @export
-fmriu.plot.plot_square <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend="metric", itype="sq", fsize=12, rem_diag=FALSE, limits=c(0, 1)) {
+fmriu.plot.plot_graph <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend="metric", itype="sq", fsize=12, rem_diag=FALSE, limits=c(0, 1)) {
   if (itype == "ts") {
     mtx <- abs(cor(mtx))  # if a timeseries is passed in, correlate the features first
   }
-  if (rem_diag) {
+  if (!include_diag) {
     diag(mtx) <- 0
   }
   jet.colors <- colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))

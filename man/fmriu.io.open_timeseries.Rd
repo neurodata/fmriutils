@@ -8,24 +8,30 @@ fmriu.io.open_timeseries(fnames, dataset_id = "", atlas_id = "",
   verbose = FALSE, rtype = "list")
 }
 \arguments{
-\item{fnames:}{[n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).rds}
+\item{fnames:}{[n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).rds. Alternatively, a path to a directory containing rds files of an appropriate naming convention. See `fmriutils` vignette for details.}
 
 \item{dataset_id:}{[1] the dataset id in the filenames.}
 
 \item{atlas_id:}{[1] the atlas id in the filenames.}
 
+\item{verbose=FALSE:}{whether to print the id of the scan being loaded.}
+
 \item{rtype='list':}{the type of output to return. Options are 'list' and 'array'.}
 }
 \value{
-ts: [[subs]][nt, nroi] the ts loaded from the specified file names. list of n subjects, each with nt timesteps and nroi rois
+ts: [[n]][nt, nroi] the ts loaded from the specified file names. list of n subjects, each with nt timesteps and nroi rois
 
 dataset: [n] a vector of the dataset ids for each subject.
 
 subjects: [n] the subject ids
 
-sessions: [n] the run ids
+sessions: [n] the session ids
+
+tasks: [n] the task ids
+
+runs: [n] the run ids
 }
 \description{
 A utility to open timeseries information from a dataset. Assumes data is formatted by the BIDs spec.
-This means that derivatives are named as follows: sub-[#####]_task-[abcde]_ses-[#####]_(generic info).file
+This means that derivatives are named as follows: sub-[###]_task-[abcde]_ses-[###]_run-[###]_(generic info).file
 }

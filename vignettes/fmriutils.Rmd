@@ -25,97 +25,98 @@ In this page, we will cover much of the basic functionality of the `fmriutils` p
 
 When working with data, it is often advantageous to apply a standard specification, including directory organization, naming convention, required data, etc. For the purposes of simplicity, we will use the [BIDs specification](http://bids.neuroimaging.io/), a spec designed for magnetic-resonance derivatives of multiple modalities. The general format of files is: `sub-[####]_task-[abcd...]_ses-[####]_detailed_info.ftype`
 
-In this section, we will cover the basics of loading data. For this tutorial, we assume that we have the following output structure produced by our pipeline:
+In this section, we will cover the basics of loading data. For this tutorial, we have made some preformatted input data available using the below commands:
 
 ```{r, eval=FALSE}
-+ outputs/
-    + BNU1/
-        + graphs/
-            + desikan-2mm/  # atlas name
-                + sub-0025864_ses-1_desikan-2mm.graphml
-                + ...
-            + aal-2mm/  # atlas name
-                + sub-0025864_ses-1_aal-2mm.graphml
-                + ...
-        + timeseries/
-            + desikan-2mm/
-                + sub-0025864_ses-1_desikan-2mm.rds
-                + ...
-            + aal-2mm/
-                + sub-0025864_ses-1_aal-2mm.rds
-                + ...
-    + DC1/
-        + graphs/
-            + desikan-2mm/  # atlas name
-                + sub-0025516_ses-1_desikan-2mm.graphml
-                + ...
-            + aal-2mm/  # atlas name
-                + sub-0025516_ses-1_aal-2mm.graphml
-                + ...
-        + timeseries/
-            + desikan-2mm/
-                + sub-0025516_ses-1_desikan-2mm.rds
-                + ...
-            + aal-2mm/
-                + sub-0025516_ses-1_aal-2mm.rds
-                + ...
+# from terminal
+cd ~/
+# prepare a directory for demo data
+mkdir data/
+cd data/
+wget http://openconnecto.me/mrdata/share/demo_data/R-pkgs/BIDs_ts_graphs/BIDs_outputs_ndmg.tar.gz
+tar -xvzf BIDs_outputs_ndmg.tar.gz  # unzips and untars contents
 ```
 
-That is, we have our directories structured such that all of our timeseries/graphs for a single dataset, single atlas are in a single folder. This is not a "hard requirement" for using the fmriutils package, but it will make our life much easier down the line, and will allow us to easily aggregate dataset and atlas-level identification information associated with our data. Assuming that we are in the same directory as the `outputs/` folder, we can load our data as follows for a single dataset, single atlas:
+which has the following hierarchy:
 
 ```{r, eval=FALSE}
+├── BNU1
+│   ├── connectomes
+│   │   ├── aal-2mm
+│   │   │   ├── sub-0025864_ses-1_bold_aal-2mm.graphml
+│   │   │   ├── sub-0025864_ses-2_bold_aal-2mm.graphml
+│   │   │   ├── sub-0025865_ses-1_bold_aal-2mm.graphml
+│   │   │   └── sub-0025865_ses-2_bold_aal-2mm.graphml
+│   │   └── desikan-2mm
+│   │       ├── sub-0025864_ses-1_bold_desikan-2mm.graphml
+│   │       ├── sub-0025864_ses-2_bold_desikan-2mm.graphml
+│   │       ├── sub-0025865_ses-1_bold_desikan-2mm.graphml
+│   │       └── sub-0025865_ses-2_bold_desikan-2mm.graphml
+│   └── timeseries
+│       └── roi
+│           ├── aal-2mm
+│           │   ├── sub-0025864_ses-1_bold_aal-2mm.rds
+│           │   ├── sub-0025864_ses-2_bold_aal-2mm.rds
+│           │   ├── sub-0025865_ses-1_bold_aal-2mm.rds
+│           │   └── sub-0025865_ses-2_bold_aal-2mm.rds
+│           └── desikan-2mm
+│               ├── sub-0025864_ses-1_bold_desikan-2mm.rds
+│               ├── sub-0025864_ses-2_bold_desikan-2mm.rds
+│               ├── sub-0025865_ses-1_bold_desikan-2mm.rds
+│               └── sub-0025865_ses-2_bold_desikan-2mm.rds
+└── HNU1
+    ├── connectomes
+    │   ├── aal-2mm
+    │   │   ├── sub-0025438_ses-1_bold_aal-2mm.graphml
+    │   │   ├── sub-0025438_ses-2_bold_aal-2mm.graphml
+    │   │   ├── sub-0025439_ses-1_bold_aal-2mm.graphml
+    │   │   └── sub-0025439_ses-2_bold_aal-2mm.graphml
+    │   └── desikan-2mm
+    │       ├── sub-0025438_ses-1_bold_desikan-2mm.graphml
+    │       ├── sub-0025438_ses-2_bold_desikan-2mm.graphml
+    │       ├── sub-0025439_ses-1_bold_desikan-2mm.graphml
+    │       └── sub-0025439_ses-2_bold_desikan-2mm.graphml
+    └── timeseries
+        └── roi
+            ├── aal-2mm
+            │   ├── sub-0025438_ses-1_bold_aal-2mm.rds
+            │   ├── sub-0025438_ses-2_bold_aal-2mm.rds
+            │   ├── sub-0025439_ses-1_bold_aal-2mm.rds
+            │   └── sub-0025439_ses-2_bold_aal-2mm.rds
+            └── desikan-2mm
+                ├── sub-0025438_ses-1_bold_desikan-2mm.rds
+                ├── sub-0025438_ses-2_bold_desikan-2mm.rds
+                ├── sub-0025439_ses-1_bold_desikan-2mm.rds
+                └── sub-0025439_ses-2_bold_desikan-2mm.rds
+```
+
+That is, we have our directories structured such that all of our timeseries/graphs for a single dataset, single atlas are in a single folder. This is not a "hard requirement" for using the fmriutils package, but it will make our life much easier down the line, and will allow us to easily aggregate dataset and atlas-level identification information associated with our data. We can load our data as follows for a single dataset, single atlas:
+
+```{r}
 require(fmriutils)
 # the path to our graphs or timeseries
-sig_inpath <- './outputs/BNU1/timeseries/desikan-2mm/'
-gra_inpath <- './outputs/BNU1/graphs/desikan-2mm/'
-
-# get vectors where each element is a file name
-sig_names <- list.files(sig_inpath, pattern="\\.rds", full.names=TRUE)
-gra_names <- list.files(gra_inpath, pattern="\\.graphml", full.names=TRUE)
+sig_inpath <- '~/data/BNU1/timeseries/roi/desikan-2mm/'
+gra_inpath <- '~/data/BNU1/connectomes/desikan-2mm/'
 
 # open up the rds timeseries files
-signalobj <- fmriu.io.open_timeseries(sig_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
+signalobj <- fmriu.io.open_timeseries(sig_inpath, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
 
-graphobj <- fmriu.io.open_graphs(gra_names, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
+graphobj <- fmriu.io.open_graphs(gra_inpath, dataset_id = 'BNU1', atlas_id = 'desikan-2mm')
 ```
+## Aggregating
 
-If we have multiple datasets, and multiple atlases, we can easily aggregate using this structuring of inputs. For example, in the example above, we may want to aggregate over the BNU1 and DC1 datasets, and aggregate over the desikan-2mm and aal-2mm atlases:
+If we have multiple datasets, and multiple atlases, we can easily aggregate using this structuring of inputs. For example, in the example above, we may want to aggregate over the BNU1 and DC1 datasets, and aggregate over the desikan-2mm and aal-2mm atlases. Note that for this functionality to work, your folder hieararchy should match the specification above:
 
-```{r, eval=FALSE}
-datasets <- c('BNU1', 'DC1')
+```{r}
+datasets <- c('BNU1', 'HNU1')
 atlases <- c('desikan-2mm', 'aal-2mm')
 
-# initialize data structures to save the derivatives and names
-timeseries <- list()
-subject_ids <- c()
-session_ids <- c()
-dataset_ids <- c()
-task_ids <- c()
+signalobj <- fmriu.io.collection.open_timeseries('~/data/', datasets=datasets, atlases=atlases)
 
-# iterate over datasets
-for (dataset in datasets) {
-  # iterate over atlases
-  for (atlas in atlases) {
-    # aggregate the timeseries names
-    sig_names <- list.files(sig_inpath, pattern="\\.rds",
-                            full.names=TRUE)
-
-    # open the timeseries we have data for
-    signalobj <- fmriu.io.open_timeseries(sig_names, dataset_id = dataset,
-                                 atlas_id = atlas, sub_pos = 2,
-                                 ses_pos=4, exclude = FALSE)
-    # append outputs to our initial data structures
-    timeseries <- append(timeseries, signalobj$ts)
-    dataset_ids <- c(dataset_ids, signalobj$dataset)
-    atlas_ids <- c(atlas_ids, signalobj$atlas)
-    subject_ids <- c(subject_ids, signalobj$subjects)
-    session_ids <- c(session_ids, signalobj$sessions)
-    task_ids <- c(task_ids, signalobj$tasks)
-  }
-}
+graphobj <- fmriu.io.collection.open_graphs('~/data/', datasets=datasets, atlases=atlases)
 ```
 
-and our resulting timeseries list, and vectors for subject/session/task/dataset level parameters, will be organized appropriately. NOTE: when attempting to aggregate outputs as was just described, make sure your filenames are descriptive enough such that no two files that you add have the same filename character for character. For example, in the examples above, we have multiple versions of subject 0025864 session 1 timeseries data (1 for desikan-2mm and 1 for aal-2mm), but since each timeseries is uniquely identified with the atlas name, we will not have any overlap. 
+and our resulting timeseries list, and vectors for subject/session/task/dataset level parameters, will be organized appropriately. NOTE: when attempting to aggregate outputs as was just described, make sure your filenames are descriptive enough such that no two files that you add have the same filename character for character. For example, in the examples above, we have multiple versions of subject 0025864 session 1 timeseries data (1 for desikan-2mm named `sub-0025864_ses-1_desikan-2mm.rds` and 1 for aal-2mm `sub-0025864_ses-1_aal-2mm.rds`), but since each timeseries is uniquely identified with the atlas name in the filename, we will not have any overlap. 
 
 # Processing Data
 
@@ -123,35 +124,63 @@ and our resulting timeseries list, and vectors for subject/session/task/dataset 
 
 Moreover, as a user it is often valuable to be able to process your timeseries data into other usable formats. For example, let's assume we have loaded in the timeseries data above into `timeseries`, and we wish to convert each timeseries to a correlation matrix. we can do this easily using our temporal functions:
 
-```{r, eval=FALSE}
-correlations <- fmriu.time.obs2corr(timeseries)  # converts timeseries to correlation matrices
+```{r}
+timeseries <- signalobj$ts
+correlations <- fmriu.time.obs2corr(timeseries, include_diag=FALSE)  # converts timeseries to correlation matrices
 ```
 
 ## Frequency Domain
 
 On the other hand, let's say we want to obtain the frequency-domain components for the power or amplitude spectrum. We provide options for also adding bandpassing as desired, but these are not necessary to input. Note that in order to apply bandpassing, you must pass a TR (the repetition time of a single slice of the 4d-data) and one of a lower cutoff or a upper cutoff. Additionally, we provide the ability to normalize the obtained frequency spectra such that per ROI, the bin intensities sum to one. This allows us to later use the frequency spectra as a pdf, such as computing the pairwise KL-divergences between spectra for each pair of ROIs. We can make this call very simply:
 
-```{r, eval=FALSE}
+```{r}
 # convert each observation to the power spectrum, and highpass filter above .01 Hz
 # also normalizes so each spectrum sums to 1
 freq <- fmriu.freq.obs2freq(timeseries, tr=2.5, lc = 0.01, hc=NaN, normalize=TRUE, spectrum='pow')
 ```
 
-Next, we might want to compute the pairwise divergence, noting that we must have called `obs2freq` with the normalize option set to `TRUE`:
+Next, we might want to compute the pairwise divergence, noting that we must have called `fmriu.freq.obs2freq()` with the normalize option set to `TRUE` since the elements of our vector in `freq` must be probability distributions:
 
-```{r, eval=FALSE}
+```{r}
 div <- fmriu.freq.freq2div(freq)
 ```
 
 These two commands can be combined with the below function:
 
-```{r, eval=FALSE}
+```{r}
 div <- fmriu.freq.obs2div(timeseries, tr=2.5, lc=0.01, hc=NaN, spectrum='pow')
 ```
 
 # Visualizing Data
 
+Another important basic functionality we may want for our fMRI data is the ability to visualize our graphs or timeseries. To allow this, we provide several useful utilities for visualization of your data.
 
+## Dataseries
+
+Often, we will want to plot a dataseries, such as a timeseries or the frequency spectrum, as a series of lines per ROI given some observation we are considering.
+
+### Timeseries
+
+To plot a timeseries, we might do something like the following:
+
+```{r}
+ts <- timeseries[[1]]  # the first timeseries
+fmriu.plot.plot_dataseries(ts, title="Timeseries Plot", xlabel = "time", ylabel="intensity", legend = "ROI")
+```
+
+### Power Spectrum
+
+```{r}
+fs <- freq[[1]]
+fmriu.plot.plot_dataseries(fs, xax=fmriu.freq.freq_seq(fs=1/2.5, nt=dim(fs)[2]),
+                           title="Power Plot", xlabel = "frequency", ylabel="power", legend = "ROI")
+```
+
+## Graphs
+
+### Given a Graph
+
+### Given a Timeseries
 
 # Manipulating Data
 
@@ -170,8 +199,8 @@ z_ts <- fmriu.obs2zsc(timeseries)
 Many people choose different representations of their data. The most easy to use is to collect the data using a list-wise representation (where each list element is a single subject's data). Ie:
 
 ```
-ts_list   # [[nsubs]] list elements, where each element is an array with dimensions [nt, nroi] for n timesteps and nroi ROIs
-gra_list       # [[nsubs]] list elements, where each element is an array with dimensions [nroi, nroi] for nroi ROIs
+timeseries   # [[nsubs]] list elements, where each element is an array with dimensions [nt, nroi] for n timesteps and nroi ROIs
+graphs       # [[nsubs]] list elements, where each element is an array with dimensions [nroi, nroi] for nroi ROIs
 ```
 
 This data format has several options. First, we can easily manipulate lists using the `_apply` family of functions, which provide C-bindings for things like looping, axis-wise operations, etc, and are a vast improvement speed wise over alternative methods. Moreover, often times in a dataset we will not necessarily have equivalently sized objects, but will still want to perform summary statistics. For example, consider the aggregation above, where we loaded timeseries data from a variety of datasets and parcellation atlases. Each dataset might have varying numbers of timesteps, and each parcellation atlas may have a different number of ROIs. This format would not be possible to enforce with array-wise manipulations.

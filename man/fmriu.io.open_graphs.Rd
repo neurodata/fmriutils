@@ -14,7 +14,7 @@ fmriu.io.open_graphs(fnames, dataset_id = "", atlas_id = "",
 
 \item{atlas_id="":}{[1] the atlas id in the filenames.}
 
-\item{fmt="graphml"}{: a parameter idicating the format for graphs to be read in as.}
+\item{fmt="graphml"}{: a parameter idicating the format for graphs to be read in as. Options are ['graphml'].}
 
 \item{verbose=FALSE}{: whether to print the iteration being loaded.}
 
