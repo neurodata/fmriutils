@@ -5,8 +5,9 @@
 \title{Graph plot}
 \usage{
 fmriu.plot.plot_graph(mtx, title = "", xlabel = "ROI", ylabel = "ROI",
-  legend = "metric", itype = "sq", fsize = 12, rem_diag = FALSE,
-  limits = c(0, 1))
+  legend.name = "metric", legend.show = TRUE, itype = "sq",
+  font.size = 12, rem_diag = FALSE, include_diag = FALSE, limits = c(0,
+  1))
 }
 \arguments{
 \item{mtx}{[nroi, nroi] or [nt, nroi]: the input. Can either be a square matrix of featuresxfeatures, or a timeseries of observationsxfeatures (see itype parameter).}
@@ -17,18 +18,20 @@ fmriu.plot.plot_graph(mtx, title = "", xlabel = "ROI", ylabel = "ROI",
 
 \item{ylabel="ROIs":}{the y label for the square plot.}
 
-\item{legend="":}{the legend title for the square plot.}
+\item{legend.name="":}{the legend title for the square plot.}
+
+\item{legend.show=TRUE:}{whether to show the legend on the plot.}
 
 \item{itype="sq":}{the shape of the input. If "sq", the plot will be generated as is for the input signal. If "ts", we will assume the input is observationsxfeatures, and will correlate the features first.}
 
-\item{fsize=12:}{the default font size for the plot text.}
+\item{font.size=12:}{the default font size for the plot text.}
 
 \item{include_diag=FALSE:}{whether to include the diagonal from the plot.}
 
-\item{limits=c(0, }{1): the limits for the fill color in the heatmap of our matrix.}
+\item{limits=c(0, 1):}{the limits for the fill color in the heatmap of our matrix.}
 }
 \value{
-sqplot : a plot of the square.
+sqplot : a plot of the graph.
 }
 \description{
 A function that plots a graph.

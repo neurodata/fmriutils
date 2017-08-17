@@ -5,7 +5,8 @@
 \title{Dataseries plot}
 \usage{
 fmriu.plot.plot_dataseries(ds, xax = NaN, title = "", xlabel = "TRs",
-  ylabel = "intensity", legend = "ROI", fsize = 12)
+  ylabel = "intensity", legend.title = "ROI", legend.show = FALSE,
+  font.size = 12, line.alpha = 0.2, line.size = 1)
 }
 \arguments{
 \item{ds:}{[nt,nroi] the signal, containing an array of nt observations for nroi rois.}
@@ -16,9 +17,15 @@ fmriu.plot.plot_dataseries(ds, xax = NaN, title = "", xlabel = "TRs",
 
 \item{ylabel="intensity":}{the y label for the dataseries plot.}
 
-\item{legend="ROIs":}{the legend title for the dataseries plot.}
+\item{legend.title="ROIs":}{the legend title for the dataseries plot.}
 
-\item{fsize=10:}{the default font size for the plot text.}
+\item{legend.show=FALSE:}{whether to show the legend for the dataseries plot.}
+
+\item{font.size=10:}{the default font size for the plot text.}
+
+\item{line.alpha=.2:}{the alpha for the lines.}
+
+\item{line.size=1:}{the width of the line.}
 }
 \value{
 dsplot : a plot of the dataseries.

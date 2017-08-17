@@ -19,7 +19,7 @@ fmriu.freq.obs2div(observations, tr = NaN, lc = 0.01, hc = NaN,
 \item{spectrum='amp':}{the frequency spectrum to use for computations. Can be 'amp' or 'pow'.}
 }
 \value{
-div_mtx [[n]][nroi, nroi] a list of n divergence matrices where each edge is a divergence between two pairs of rois.
+div_mtx [[n]][nroi, nroi] a list of n divergence matrices where each edge is a divergence between the frequency spectrum of two pairs of rois.
 }
 \description{
 a function that converts lists of timeseries signals to divergence matrices, using the fourier domain.

@@ -13,7 +13,7 @@ fmriu.array2list(list_in)
 list_in a list with n elements of dimensions [n x m].
 }
 \description{
-\code{array2list} uses plyr to reshape an array of same-dimensional graphs
+\code{fmriu.array2list} uses plyr to reshape an array of same-dimensional graphs
 a list. Takes from array[,,length(listels)] to list[[listels]].
 }
 \examples{

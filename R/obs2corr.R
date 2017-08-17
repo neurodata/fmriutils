@@ -1,5 +1,7 @@
 #' Observations to Correlation
+#'
 #' a utility to convert timeseries to correlation matrices.
+#'
 #' @param observations: [[subs]][timesteps, rois] a list of observations for a particular subject.
 #' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
 #' @param include_diag=FALSE: whether to include the diagonal in the result.

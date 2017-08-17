@@ -1,8 +1,9 @@
 #' Reorganize a list of graphs to an array of graphs
 #'
-#' \code{list2array} uses abind to reshape a list of same-dimension graphs to
+#' \code{fmriu.list2array} uses abind to reshape a list of same-dimension graphs to
 #' an array. Takes from list[[listels]] to array[,,length(listels)].
 #'
+#' @import abind
 #' @param list_in a list with n elements of dimensions [n x m].
 #' @return array_out an array of dimensions [n x m x p].
 #' @examples
@@ -15,7 +16,6 @@
 #' @seealso \code{\link{abind}} \code{\link{array2list}}
 #'
 fmriu.list2array <- function(list_in) {
-  require(abind)
   array_out <- do.call(abind, c(list_in, list(along=3)))
   return(array_out)
 }

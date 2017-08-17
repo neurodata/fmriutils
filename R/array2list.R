@@ -1,8 +1,9 @@
 #' Reorganize an array of graphs to a list of graphs.
 #'
-#' \code{array2list} uses plyr to reshape an array of same-dimensional graphs
+#' \code{fmriu.array2list} uses plyr to reshape an array of same-dimensional graphs
 #' a list. Takes from array[,,length(listels)] to list[[listels]].
 #'
+#' @import plyr
 #' @param array_out an array of dimensions [n x m x p].
 #' @return list_in a list with n elements of dimensions [n x m].
 #' @examples
@@ -12,7 +13,6 @@
 #' @seealso \code{\link{plyr}} \code{\link{list2array}}
 #'
 fmriu.array2list <- function(list_in) {
-  require(plyr)
   array_out <- alply(list_in, 3)
   return(array_out)
 }

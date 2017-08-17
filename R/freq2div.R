@@ -30,7 +30,7 @@ fmriu.freq.freq2div <- function(observations) {
 #' @param lc: [1] the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
 #' @param hc: [1] the higher cutoff (in Hz) above which the fourier domain components will be set to zero.
 #' @param spectrum='amp': the frequency spectrum to use for computations. Can be 'amp' or 'pow'.
-#' @return div_mtx [[n]][nroi, nroi] a list of n divergence matrices where each edge is a divergence between two pairs of rois.
+#' @return div_mtx [[n]][nroi, nroi] a list of n divergence matrices where each edge is a divergence between the frequency spectrum of two pairs of rois.
 #' @keywords frequency, divergence
 #' @export
 fmriu.freq.obs2div <- function(observations, tr=NaN, lc=0.01, hc=NaN, spectrum='amp', rtype='list') {

@@ -13,7 +13,7 @@ fmriu.list2array(list_in)
 array_out an array of dimensions [n x m x p].
 }
 \description{
-\code{list2array} uses abind to reshape a list of same-dimension graphs to
+\code{fmriu.list2array} uses abind to reshape a list of same-dimension graphs to
 an array. Takes from list[[listels]] to array[,,length(listels)].
 }
 \examples{

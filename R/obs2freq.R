@@ -12,6 +12,9 @@
 #' @return amp_data: [[n]][nt/2, nroi] the frequency spectrum of the dataset.
 #' @export
 fmriu.freq.obs2freq <- function(observations, tr=NaN, lc=0.01, hc=NaN, normalize=TRUE, spectrum='amp', rtype='list') {
+  if (! (rtype %in% c('list', 'array'))) {
+    stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
+  }
   if (!(spectrum %in% c('amp', 'pow'))) {
     stop('You have passed an invalid frequency option. Options are: [\'amp\', \'pow\'].')
   }
@@ -29,7 +32,7 @@ fmriu.freq.obs2freq <- function(observations, tr=NaN, lc=0.01, hc=NaN, normalize
     }
     return(x)
   }, simplify=FALSE, USE.NAMES=TRUE)
-  if (rtype != 'list') {
+  if (rtype == 'array') {
     freq_data <- fmriu.list2array(freq_data)
   }
   return(freq_data)

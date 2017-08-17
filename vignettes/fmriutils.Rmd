@@ -14,7 +14,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(cache=TRUE, fig.height=4, fig.width=6)
 ```
 
 In this page, we will cover much of the basic functionality of the `fmriutils` package, including loading, processing, visualizing, and manipulating data.
@@ -112,8 +112,10 @@ datasets <- c('BNU1', 'HNU1')
 atlases <- c('desikan-2mm', 'aal-2mm')
 
 signalobj <- fmriu.io.collection.open_timeseries('~/data/', datasets=datasets, atlases=atlases)
+timeseries <- signalobj$ts
 
 graphobj <- fmriu.io.collection.open_graphs('~/data/', datasets=datasets, atlases=atlases)
+graphs <- graphobj$graphs
 ```
 
 and our resulting timeseries list, and vectors for subject/session/task/dataset level parameters, will be organized appropriately. NOTE: when attempting to aggregate outputs as was just described, make sure your filenames are descriptive enough such that no two files that you add have the same filename character for character. For example, in the examples above, we have multiple versions of subject 0025864 session 1 timeseries data (1 for desikan-2mm named `sub-0025864_ses-1_desikan-2mm.rds` and 1 for aal-2mm `sub-0025864_ses-1_aal-2mm.rds`), but since each timeseries is uniquely identified with the atlas name in the filename, we will not have any overlap. 
@@ -163,24 +165,36 @@ Often, we will want to plot a dataseries, such as a timeseries or the frequency 
 
 To plot a timeseries, we might do something like the following:
 
-```{r}
+```{r, fig.width=7}
 ts <- timeseries[[1]]  # the first timeseries
-fmriu.plot.plot_dataseries(ts, title="Timeseries Plot", xlabel = "time", ylabel="intensity", legend = "ROI")
+fmriu.plot.plot_dataseries(ts, title="Timeseries Plot", xlabel = "TR", ylabel="intensity", legend.title = "ROI")
 ```
 
 ### Power Spectrum
 
-```{r}
+Unlike a timeseries, for the power spectrum our $x$-axis no longer represents TRs. Instead, our $x$-axis here is the frequency associated with each bin in our FFT. Using the utility `fmriu.freq.freq_seq`, we are able to take our sampling rate ($\frac{1}{\pi}$ where $\pi$ is the duration of each TR, or the period of a single volume in the scanner) and the number of timesteps and directly compute the frequency associated with each bin, and we can pass that as an optional argument to our plot function:
+
+```{r, fig.width=7}
 fs <- freq[[1]]
-fmriu.plot.plot_dataseries(fs, xax=fmriu.freq.freq_seq(fs=1/2.5, nt=dim(fs)[2]),
-                           title="Power Plot", xlabel = "frequency", ylabel="power", legend = "ROI")
+fmriu.plot.plot_dataseries(fs, xax=fmriu.freq.freq_seq(fs=1/2.5, nt=dim(timeseries[[1]])[1]),
+                           title="Power Plot", xlabel = "frequency (Hz)", ylabel="power", legend.title = "ROI")
 ```
+
+and similarly for the amplitude spectrum, if we had instead specified 'amp' when creating the `freq` object.
 
 ## Graphs
 
-### Given a Graph
+Plotting graphs is similarly easy:
 
-### Given a Timeseries
+```{r}
+gr <- graphs[[1]]
+fmriu.plot.plot_graph(gr, title="Graph Plot",xlabel="ROI", ylabel="ROI", legend.name = "corr")
+```
+
+we may may optionally want to leave in the diagonal:
+```{r}
+fmriu.plot.plot_graph(gr, title="Graph Plot, Diagonal Included",xlabel="ROI", ylabel="ROI", legend.name = "corr", include_diag=TRUE)
+```
 
 # Manipulating Data
 
@@ -190,8 +204,16 @@ It is often valuable to z-score data; that is, per ROI, to assign a z-score base
 
 We can convert a timeseries/frequency spectra to the z-scored values:
 
-```{r, eval=FALSE}
+```{r, fig.width=7}
 z_ts <- fmriu.obs2zsc(timeseries)
+fmriu.plot.plot_dataseries(z_ts[[1]], title="Z-Scored Timeseries Plot", xlabel = "TR", ylabel="z-sc", legend.title = "ROI")
+```
+
+which will default to z-scoring the timeseries per ROI. Alternatively, we may want to globally z-score, such as in the case of a graph. We can call this function similarly, noting that we should adjust the limits since we are no longer dealing with correlation matrices as expected):
+
+```{r}
+z_gra <- fmriu.obs2zsc(graphs, scale='global')
+fmriu.plot.plot_graph(z_gra[[1]], title="Z-Scored Graph Plot", legend.name = "z-sc", limits=c(-2, 2))
 ```
 
 ## Converting between Arrays and Lists
@@ -214,9 +236,10 @@ gra_array  # [nroi, nroi, nsubs]- dimensional array for nroi ROIs and nsubs subj
 
 Note that many functions will expect ONLY the list-wise representations internally. However, you can convert between the two formats easily using the simple utilities below:
 
-```{r, eval=FALSE}
-ts_list <- fmriu.array2list(ts_array)
-ts_array <- fmriu.list2array(ts_list)
+```{r}
+gr_subset <- graphs[graphobj$atlas == "aal-2mm"]
+grarray <- fmriu.list2array(gr_subset)
+grlist <- fmriu.array2list(grarray)
 ```
 
-Use this conversion with caution. The list representation elements are stored with metadata (the original filenames), so some of this data may be lost transferring back and forth between lists and arrays, so we recommend only using arrays when absolutely necessary.
+Use this conversion with caution. The list representation elements are stored with relevant metadata (the original filenames), so some of this data may be lost transferring back and forth between lists and arrays. Moreover, arrays require every element to have the same shape, whereas lists relax this assumption, meaning we cannot store data from parcellations with different numbers of ROIs, timeseries from subjects with varying numbers of timesteps, etc. For these reasons, we recommend only using arrays when absolutely necessary.

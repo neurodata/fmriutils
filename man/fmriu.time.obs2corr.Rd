@@ -2,8 +2,7 @@
 % Please edit documentation in R/obs2corr.R
 \name{fmriu.time.obs2corr}
 \alias{fmriu.time.obs2corr}
-\title{Observations to Correlation
-a utility to convert timeseries to correlation matrices.}
+\title{Observations to Correlation}
 \usage{
 fmriu.time.obs2corr(observations, rtype = "list", include_diag = FALSE)
 }
@@ -18,7 +17,6 @@ fmriu.time.obs2corr(observations, rtype = "list", include_diag = FALSE)
 corr_data: [[subs]][rois, rois] the locally correlated roi timeseries.
 }
 \description{
-Observations to Correlation
 a utility to convert timeseries to correlation matrices.
 }
 \author{

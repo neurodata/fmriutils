@@ -4,15 +4,17 @@
 \alias{fmriu.obs2zsc}
 \title{signal to Z-scores}
 \usage{
-fmriu.obs2zsc(signal, rtype = "list")
+fmriu.obs2zsc(signal, scale = "roi", rtype = "list")
 }
 \arguments{
-\item{signal:}{[[n]][nt, nroi] computes the z-scores of each of the nt observations with respect to the scaling of each roi.}
+\item{signal:}{[[n]][nt, nroi] or [[n]][nroi, nroi] computes the z-scores of our data.}
+
+\item{scale='roi':}{whether to scale by 'roi' columns (ROIs; our features, this gives a z-score per ROI) or 'global' by the overall mean (this gives a global z-score).}
 
 \item{rtype='list':}{the type of output to return. Options are 'list' and 'array'.}
 }
 \value{
-zscore_data: [[n]][nt, nroi] the z-scored timeseries for each roi.
+zscore_data: [[n]][nt, nroi] or [[n]][nroi, nroi] the z-scored data.
 }
 \description{
 Scales observations by their z-scores for a given signal.

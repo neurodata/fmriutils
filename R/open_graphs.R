@@ -3,6 +3,8 @@
 #' A utility to open graph information from a dataset.Assumes data is formatted by the BIDs spec.
 #' This means that derivatives are named as follows: sub-[#####]_task-[abcde]_ses-[#####]_(generic info).file
 #'
+#' @import stringr
+#' @import igraph
 #' @param fnames: [n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).rds
 #' @param dataset_id="": [1] the dataset id in the filenames.
 #' @param atlas_id="": [1] the atlas id in the filenames.
