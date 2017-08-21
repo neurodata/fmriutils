@@ -94,6 +94,7 @@ That is, we have our directories structured such that all of our timeseries/grap
 
 ```{r}
 require(fmriutils)
+require(testthat)
 # the path to our graphs or timeseries
 sig_inpath <- '~/data/BNU1/timeseries/roi/desikan-2mm/'
 gra_inpath <- '~/data/BNU1/connectomes/desikan-2mm/'
@@ -197,6 +198,46 @@ fmriu.plot.plot_graph(gr, title="Graph Plot, Diagonal Included",xlabel="ROI", yl
 ```
 
 # Manipulating Data
+## Thresholding and Binarizing Graphs
+
+fMRI graphs are often real-valued; that is, edge weights will natively take some floating-point value unless specified otherwise. Often times, researchers will want simple graphs, where edges can only be either connected (value of 1) or disconnected (value of 0). Further yet, researchers may want to ignore edges with low values or values below a particular cutoff threshold. We start by plotting the first raw graph in our list, and then will apply successive transformations to the raw graphs and show the resulting impact.
+
+```{r}
+fmriu.plot.plot_graph(graphs[[1]], title="Raw Graph", xlabel="ROI",
+                      ylabel="ROI", legend.name = "corr")
+```
+
+### Cutoff
+
+The most basic way to threshold data is to specify a cutoff threshold. Here, we very simply iterate over each graph in our graphs list, and set elements below our cutoff threshold to zero. We can take a look at this as follows:
+
+```{r}
+cgraphs <- fmriu.thresh_graphs(graphs, method='cutoff', t=0.5)
+fmriu.plot.plot_graph(cgraphs[[1]], title="Values below 0.5 cut off", legend.name = "corr")
+# test that we end up with no values between 0 and our cutoff since they should be set to zero
+expect_equal(sum(graphs[[1]] < 0.5 && graphs[[1]] > 0), 0)
+```
+
+Notice that all the resulting values are greater than 0.5, which was the cutoff threshold we specified. 
+
+### Percentile
+
+Another simple way to threshold our graphs is to remove values below a given threshold. Here, we iterate over each graph in our graphs list, compute the appropriate percentile for each graph, and then threshold below this cutoff for each graph. Note that the cutoff will NOT be the same for each graph due to the percentile depending on the edge-weight distribution for the particular graph:
+
+```{r}
+pgraphs <- fmriu.thresh_graphs(graphs, method='ptile', t=0.5)
+fmriu.plot.plot_graph(pgraphs[[1]], title="Values below 50th Ptile cutoff", legend.name = "corr")
+# test that we retain half of the number of values since we threshold by the 50th percentile
+expect_equal(sum(pgraphs[[1]] > 0), 4900/2)
+```
+
+### Binarizing
+
+```{r}
+bgraphs <- fmriu.thresh_graphs(graphs, method='ptile', t=0.5, binarize=TRUE)
+fmriu.plot.plot_graph(bgraphs[[1]], title="Binarized, Ptile-Thresholded Graphs", legend.name="edge")
+expect_equal(sum(bgraphs[[1]]), 4900/2)
+```
 
 ## Z-Scoring
 

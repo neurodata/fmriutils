@@ -5,7 +5,7 @@
 \title{Observations to Frequency Spectrum}
 \usage{
 fmriu.freq.obs2freq(observations, tr = NaN, lc = 0.01, hc = NaN,
-  normalize = TRUE, spectrum = "amp", rtype = "list")
+  normalize = TRUE, spectrum = "amp")
 }
 \arguments{
 \item{observations:}{[[n]][nt, nroi] a list of signals for n subjects, each containing nt timesteps and nroi rois.}
@@ -17,8 +17,6 @@ fmriu.freq.obs2freq(observations, tr = NaN, lc = 0.01, hc = NaN,
 \item{hc:}{[1] the higher cutoff (in Hz) above which the fourier domain components will be set to zero.}
 
 \item{spectrum='amp':}{the frequency option to use for computations. Can be 'amp' (amplitude) or 'pow' (power).}
-
-\item{rtype='list':}{the type of output to return. Options are 'list' and 'array'.}
 }
 \value{
 amp_data: [[n]][nt/2, nroi] the frequency spectrum of the dataset.

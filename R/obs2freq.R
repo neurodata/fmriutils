@@ -8,13 +8,9 @@
 #' @param lc: [1] the lower cutoff (in Hz) below which the fourier domain components will be set to zero.
 #' @param hc: [1] the higher cutoff (in Hz) above which the fourier domain components will be set to zero.
 #' @param spectrum='amp': the frequency option to use for computations. Can be 'amp' (amplitude) or 'pow' (power).
-#' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
 #' @return amp_data: [[n]][nt/2, nroi] the frequency spectrum of the dataset.
 #' @export
-fmriu.freq.obs2freq <- function(observations, tr=NaN, lc=0.01, hc=NaN, normalize=TRUE, spectrum='amp', rtype='list') {
-  if (! (rtype %in% c('list', 'array'))) {
-    stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
-  }
+fmriu.freq.obs2freq <- function(observations, tr=NaN, lc=0.01, hc=NaN, normalize=TRUE, spectrum='amp') {
   if (!(spectrum %in% c('amp', 'pow'))) {
     stop('You have passed an invalid frequency option. Options are: [\'amp\', \'pow\'].')
   }
@@ -32,9 +28,6 @@ fmriu.freq.obs2freq <- function(observations, tr=NaN, lc=0.01, hc=NaN, normalize
     }
     return(x)
   }, simplify=FALSE, USE.NAMES=TRUE)
-  if (rtype == 'array') {
-    freq_data <- fmriu.list2array(freq_data)
-  }
   return(freq_data)
 }
 

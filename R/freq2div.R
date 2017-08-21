@@ -33,14 +33,8 @@ fmriu.freq.freq2div <- function(observations) {
 #' @return div_mtx [[n]][nroi, nroi] a list of n divergence matrices where each edge is a divergence between the frequency spectrum of two pairs of rois.
 #' @keywords frequency, divergence
 #' @export
-fmriu.freq.obs2div <- function(observations, tr=NaN, lc=0.01, hc=NaN, spectrum='amp', rtype='list') {
-  if (! (rtype %in% c('list', 'array'))) {
-    stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
-  }
+fmriu.freq.obs2div <- function(observations, tr=NaN, lc=0.01, hc=NaN, spectrum='amp') {
   freq <- fmriu.freq.obs2freq(observations, tr=tr, lc=lc, hc=hc, normalize=TRUE, spectrum=spectrum)
   div_mtx <- fmriu.freq.freq2div(freq)
-  if (rtype == 'array') {
-    div_mtx <- fmriu.list2array(div_mtx)
-  }
   return(div_mtx)
 }
