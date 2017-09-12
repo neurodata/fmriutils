@@ -22,17 +22,21 @@
 #' }
 #' @return tgraphs: [[n]][nroi, nroi] the thresholded graphs.
 #' @examples
+#' graphs <- list()
+#' graphs[[1]] <- matrix(runif(25), nrow=5, ncol=5)
+#' graphs[[2]] <- matrix(runif(25), nrow=5, ncol=5)
+#' graphs[[3]] <- matrix(runif(25), nrow=5, ncol=5)
 #' # I want to binarize my graphs without applying any thresholding
 #' # setting all edges nonzero to connected (1) and zero edges to disconnected (0).
-#' thresh_graphs(graphs, binarize=TRUE)
+#' fmriu.thresh_graphs(graphs, binarize=TRUE)
 #'
 #' # For each graph, I want to threshold the botton 70% of edges
 #' # and then binarize such that the bottom 70% of edges are disconnected (0)
 #' # and the top 30% of edges are connected (1).
-#' thresh_graphs(graphs, method='ptile', t=0.5, binarize=TRUE)
+#' fmriu.thresh_graphs(graphs, method='ptile', t=0.7, binarize=TRUE)
 #'
 #' # For each graph, remove all edges less than 0.5.
-#' thresh_graphs(graphs, method='cutoff', t=0.5)
+#' fmriu.thresh_graphs(graphs, method='cutoff', t=0.5)
 #'
 #' @author Eric Bridgeford
 #' @export
