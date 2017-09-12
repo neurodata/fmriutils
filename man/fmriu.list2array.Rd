@@ -4,13 +4,19 @@
 \alias{fmriu.list2array}
 \title{Reorganize a list of graphs to an array of graphs}
 \usage{
-fmriu.list2array(list_in)
+fmriu.list2array(list_in, flatten = FALSE)
 }
 \arguments{
-\item{list_in}{a list with n elements of dimensions [n x m].}
+\item{list_in}{a list with p elements of dimensions [n x m].}
+
+\item{flatten=FALSE}{whether to flatten the elements. The output will be of dimensions:
+\describe{
+   \item{TRUE}{output array will be [p x (n*m)]}
+   \item{FALSE}{output array will be [p x n x m]}
+}}
 }
 \value{
-array_out an array of dimensions [n x m x p].
+array_out an array of dimensions depending on the flatten parameter.
 }
 \description{
 \code{fmriu.list2array} uses abind to reshape a list of same-dimension graphs to
@@ -21,8 +27,8 @@ test <- list()
 test[[1]] <- matrix(1:35, nrow=5, ncol=7)
 test[[2]] <- matrix(36:70, nrow=5, ncol=7)
 test[[3]] <- matrix(71:105, nrow=5, ncol=7)
-fmriu.list2array(test)  # has dimensions [5, 7, 3]
+fmriu.list2array(test)  # has dimensions [3, 5, 7]
 }
 \seealso{
-\code{\link{abind}} \code{\link{array2list}}
+\code{\link{abind}} \code{\link{array2list}} \code{\link{aperm}}
 }

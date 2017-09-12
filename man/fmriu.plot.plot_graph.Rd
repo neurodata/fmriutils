@@ -6,8 +6,7 @@
 \usage{
 fmriu.plot.plot_graph(mtx, title = "", xlabel = "ROI", ylabel = "ROI",
   legend.name = "metric", legend.show = TRUE, itype = "sq",
-  font.size = 12, rem_diag = FALSE, include_diag = FALSE, limits = c(0,
-  1))
+  font.size = 12, rinclude_diag = FALSE, limits = c(0, 1))
 }
 \arguments{
 \item{mtx}{[nroi, nroi] or [nt, nroi]: the input. Can either be a square matrix of featuresxfeatures, or a timeseries of observationsxfeatures (see itype parameter).}

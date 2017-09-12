@@ -23,6 +23,10 @@ fmriu.io.open_timeseries <- function(fnames, dataset_id="", atlas_id="", verbose
   if (! (rtype %in% c('list', 'array'))) {
     stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
   }
+  if (length(fnames) == 0) {
+    stop(sprintf('You do not have any files.', fnames))
+  }
+
   print(sprintf("opening timeseries for %s dataset and %s parcellation atlas...", dataset_id, atlas_id))
   subjects <- vector("character", length(fnames))
   dataset <- rep(dataset_id, length(fnames))
