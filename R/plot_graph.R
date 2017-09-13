@@ -18,7 +18,7 @@
 #' @author Eric Bridgeford
 #' @export
 fmriu.plot.plot_graph <- function(mtx, title="",xlabel="ROI", ylabel="ROI", legend.name="metric", legend.show=TRUE, itype="sq",
-                                  font.size=12, rinclude_diag=FALSE, limits=c(0, 1)) {
+                                  font.size=12, include_diag=FALSE, limits=c(0, 1)) {
   if (itype == "ts") {
     mtx <- abs(cor(mtx))  # if a timeseries is passed in, correlate the features first
   }
