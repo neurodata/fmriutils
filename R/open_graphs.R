@@ -33,6 +33,10 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
   if (! (fmt %in% c('graphml', 'edgelist'))) {
     stop('You have passed an invalid format type. Options are: [\'graphml\', \'edgelist\'].')
   }
+
+  if (fmt == 'edgelist') {
+    fmt <- 'ncol'  # i don't have a clue why this is necessary... blame igraph
+  }
   print(sprintf("opening graphs for %s dataset and %s parcellation atlas...", dataset_id, atlas_id))
   subjects <- vector("character", length(fnames))
   dataset <- rep(dataset_id, length(fnames))
@@ -72,7 +76,7 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
 #' @param gname='connectomes': the folder name in which graphs are stored. Suggested options are ['connectomes', 'graphs'].
 #' @param fmt="graphml" a parameter indicating the format for graphs to be read in as. Options are ['graphml', 'edgelist'].
 #' @param verbose=FALSE: whether to print the id of the scan being loaded.
-#' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
+#' @param rtype='list': the type of output to return. Options are 'list' and 'array'. Note that if rtype is 'array', all of the graphs must be derived from parcellations with the same number of vertices.
 #' @param flatten=FALSE a parameter to flatten the array if the rtype is set to 'array'.
 #' \describe{
 #'   \item{TRUE}{If rtype == 'array', then returns an [n x r^2] array}
@@ -104,7 +108,7 @@ fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", g
       path <- file.path(basepath, ds, gname, at, fsep = "/")
       signalobj <- fmriu.io.open_graphs(path, dataset_id = ds, atlas_id = at,
                                         verbose = verbose, rtype = 'list',
-                                        fmt=fmt, flatten=flatten)
+                                        fmt=fmt)
 
       gr <- append(gr, signalobj$graphs)
       subjects <- c(subjects, signalobj$subjects)

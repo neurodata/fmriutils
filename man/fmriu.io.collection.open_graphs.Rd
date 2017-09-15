@@ -5,7 +5,8 @@
 \title{Open Graphs Collection}
 \usage{
 fmriu.io.collection.open_graphs(basepath, datasets = "", atlases = "",
-  gname = "connectomes", verbose = FALSE, rtype = "list")
+  gname = "connectomes", fmt = "graphml", verbose = FALSE,
+  rtype = "list", flatten = FALSE)
 }
 \arguments{
 \item{basepath:}{[1] a path to a properly spec'd directory. See the example in `fmriutils.html` for details.}
@@ -16,12 +17,20 @@ fmriu.io.collection.open_graphs(basepath, datasets = "", atlases = "",
 
 \item{gname='connectomes':}{the folder name in which graphs are stored. Suggested options are ['connectomes', 'graphs'].}
 
+\item{fmt="graphml"}{a parameter indicating the format for graphs to be read in as. Options are ['graphml', 'edgelist'].}
+
 \item{verbose=FALSE:}{whether to print the id of the scan being loaded.}
 
-\item{rtype='list':}{the type of output to return. Options are 'list' and 'array'.}
+\item{rtype='list':}{the type of output to return. Options are 'list' and 'array'. Note that if rtype is 'array', all of the graphs must be derived from parcellations with the same number of vertices.}
+
+\item{flatten=FALSE}{a parameter to flatten the array if the rtype is set to 'array'.
+\describe{
+  \item{TRUE}{If rtype == 'array', then returns an [n x r^2] array}
+  \item{FALSE}{If rtype == 'array', then returns an [n x r x r] array}
+}}
 }
 \value{
-graphs: [[n]][nroi, nroi] the graphs loaded from the specified directory. list of n subjects, each with nt timesteps and nroi rois
+graphs: [[n]][nroi, nroi] the graphs loaded from the specified directory. Shape depends on the parameters specified.
 
 dataset: [n] a vector of the dataset ids for each subject.
 

@@ -5,29 +5,39 @@
 \title{Open Graphs}
 \usage{
 fmriu.io.open_graphs(fnames, dataset_id = "", atlas_id = "",
-  fmt = "graphml", verbose = FALSE, rtype = "list")
+  fmt = "graphml", verbose = FALSE, rtype = "list", flatten = FALSE)
 }
 \arguments{
-\item{fnames:}{[n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).rds}
+\item{fnames}{[n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).ext. Alternatively, a path to a directory containing a collection of appropriately named files with extension as specified below.}
 
-\item{dataset_id="":}{[1] the dataset id in the filenames.}
+\item{dataset_id=""}{[1] the dataset id in the filenames.}
 
-\item{atlas_id="":}{[1] the atlas id in the filenames.}
+\item{atlas_id=""}{[1] the atlas id in the filenames.}
 
-\item{fmt="graphml"}{: a parameter idicating the format for graphs to be read in as. Options are ['graphml'].}
+\item{fmt="graphml"}{a parameter indicating the format for graphs to be read in as. Options are ['graphml', 'edgelist'].}
 
-\item{verbose=FALSE}{: whether to print the iteration being loaded.}
+\item{verbose=FALSE}{whether to print the iteration being loaded.}
 
-\item{rtype='list':}{the type of output to return. Options are 'list' and 'array'.}
+\item{rtype='list'}{the type of output to return. Options are 'list' and 'array'.}
+
+\item{flatten=FALSE}{a parameter to flatten the array if the rtype is set to 'array'.
+\describe{
+  \item{TRUE}{If rtype == 'array', then returns an [n x r^2] array}
+  \item{FALSE}{If rtype == 'array', then returns an [n x r x r] array}
+}}
 }
 \value{
-gr: [[subs]][nt, nroi] the gr loaded from the specified file names. list of n subjects, each with nt timesteps and nroi rois
+gr the graphs of the subjects. Size depends on the parameters specified.
 
-dataset: [n] a vector of the dataset ids for each subject.
+dataset [n] a vector of the dataset ids for each subject.
 
-subjects: [n] the subject ids
+subjects [n] the subject ids
 
-sessions: [n] the run ids
+sessions [n] the run ids
+
+tasks [n] the task ids
+
+runs [n] the run ids
 }
 \description{
 A utility to open graph information from a dataset.Assumes data is formatted by the BIDs spec.
