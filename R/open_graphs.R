@@ -5,26 +5,33 @@
 #'
 #' @import stringr
 #' @import igraph
-#' @param fnames: [n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).rds
-#' @param dataset_id="": [1] the dataset id in the filenames.
-#' @param atlas_id="": [1] the atlas id in the filenames.
-#' @param fmt="graphml" : a parameter idicating the format for graphs to be read in as. Options are ['graphml'].
-#' @param verbose=FALSE : whether to print the iteration being loaded.
-#' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
-#' @return gr: [[subs]][nt, nroi] the gr loaded from the specified file names. list of n subjects, each with nt timesteps and nroi rois
-#' @return dataset: [n] a vector of the dataset ids for each subject.
-#' @return subjects: [n] the subject ids
-#' @return sessions: [n] the run ids
+#' @param fnames [n] a vector of filenames, with separation by underscores IE, dataset_subject_run_(other information).ext. Alternatively, a path to a directory containing a collection of appropriately named files with extension as specified below.
+#' @param dataset_id="" [1] the dataset id in the filenames.
+#' @param atlas_id="" [1] the atlas id in the filenames.
+#' @param fmt="graphml" a parameter indicating the format for graphs to be read in as. Options are ['graphml', 'edgelist'].
+#' @param verbose=FALSE whether to print the iteration being loaded.
+#' @param rtype='list' the type of output to return. Options are 'list' and 'array'.
+#' @param flatten=FALSE a parameter to flatten the array if the rtype is set to 'array'.
+#' \describe{
+#'   \item{TRUE}{If rtype == 'array', then returns an [n x r^2] array}
+#'   \item{FALSE}{If rtype == 'array', then returns an [n x r x r] array}
+#' }
+#' @return gr the graphs of the subjects. Size depends on the parameters specified.
+#' @return dataset [n] a vector of the dataset ids for each subject.
+#' @return subjects [n] the subject ids
+#' @return sessions [n] the run ids
+#' @return tasks [n] the task ids
+#' @return runs [n] the run ids
 #' @export
-fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphml', verbose=FALSE, rtype='list') {
+fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphml', verbose=FALSE, rtype='list', flatten=FALSE) {
   if (is.character(fnames)) {
     fnames <- list.files(fnames, pattern=paste('\\.', fmt, sep=""), full.names=TRUE)
   }
   if (! (rtype %in% c('list', 'array'))) {
     stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
   }
-  if (! (fmt %in% c('graphml'))) {
-    stop('You have passed an invalid format type. Options are: [\'graphml\'].')
+  if (! (fmt %in% c('graphml', 'edgelist'))) {
+    stop('You have passed an invalid format type. Options are: [\'graphml\', \'edgelist\'].')
   }
   print(sprintf("opening graphs for %s dataset and %s parcellation atlas...", dataset_id, atlas_id))
   subjects <- vector("character", length(fnames))
@@ -48,7 +55,7 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
     tasks[i] <- str_extract(basename, 'task(.?)+?(?=_)')
   }
   if (rtype == 'array') {
-    gr = fmriu.list2array(gr)
+    gr = fmriu.list2array(gr, flatten=flatten)
   }
   return(list(graphs=gr, dataset=dataset, atlas=atlas, subjects=subjects,
               sessions=sessions, tasks=tasks))
@@ -63,9 +70,15 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
 #' @param datasets: [d] the datasets as a vector. Note that we expect a folder `<basepath>/<dataset>` for `dataset in datasets`.
 #' @param atlases: [a] the atlases as a vector. Note that we expect a folder `<basepath>/<dataset>/<gname>/<atlas>` for `atlas in atlases`.
 #' @param gname='connectomes': the folder name in which graphs are stored. Suggested options are ['connectomes', 'graphs'].
+#' @param fmt="graphml" a parameter indicating the format for graphs to be read in as. Options are ['graphml', 'edgelist'].
 #' @param verbose=FALSE: whether to print the id of the scan being loaded.
 #' @param rtype='list': the type of output to return. Options are 'list' and 'array'.
-#' @return graphs: [[n]][nroi, nroi] the graphs loaded from the specified directory. list of n subjects, each with nt timesteps and nroi rois
+#' @param flatten=FALSE a parameter to flatten the array if the rtype is set to 'array'.
+#' \describe{
+#'   \item{TRUE}{If rtype == 'array', then returns an [n x r^2] array}
+#'   \item{FALSE}{If rtype == 'array', then returns an [n x r x r] array}
+#' }
+#' @return graphs: [[n]][nroi, nroi] the graphs loaded from the specified directory. Shape depends on the parameters specified.
 #' @return dataset: [n] a vector of the dataset ids for each subject.
 #' @return atlas: [n] a vector of the atlas ids for each subject.
 #' @return subjects: [n] the subject ids
@@ -73,7 +86,7 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
 #' @return tasks: [n] the task ids
 #' @return runs: [n] the run ids
 #' @export
-fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", gname='connectomes', verbose=FALSE, rtype='list') {
+fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", gname='connectomes', fmt='graphml', verbose=FALSE, rtype='list', flatten=FALSE) {
   if (! (rtype %in% c('list', 'array'))) {
     stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
   }
@@ -90,7 +103,8 @@ fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", g
     for (at in atlases) {
       path <- file.path(basepath, ds, gname, at, fsep = "/")
       signalobj <- fmriu.io.open_graphs(path, dataset_id = ds, atlas_id = at,
-                                        verbose = verbose, rtype = 'list')
+                                        verbose = verbose, rtype = 'list',
+                                        fmt=fmt, flatten=flatten)
 
       gr <- append(gr, signalobj$graphs)
       subjects <- c(subjects, signalobj$subjects)
@@ -102,7 +116,7 @@ fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", g
     }
   }
   if (rtype == 'array') {
-    gr = fmriu.list2array(gr)
+    gr = fmriu.list2array(gr, flatten=flatten)
   }
   return(list(graphs=gr, dataset=dataset, atlas=atlas, subjects=subjects,
               sessions=sessions, tasks=tasks, runs=runs))
