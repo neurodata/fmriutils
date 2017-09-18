@@ -21,11 +21,22 @@
 #' @seealso \code{\link{abind}} \code{\link{array2list}} \code{\link{aperm}}
 #'
 fmriu.list2array <- function(list_in, flatten=FALSE) {
-  array_out <- do.call(abind, c(list_in, list(along=3)))
-  array_out <- aperm(array_out, perm = c(3, 1, 2))
+  nroi <- max(sapply(list_in, function(graph) dim(graph)[1]))
+  nsub <- length(list_in)
+  array_out <- array(NaN, dim=c(nsub, nroi, nroi))
+  subnames <- names(list_in)
+  incl_ar <- logical(nsub)
+  for (i in 1:nsub) {
+    if (isTRUE(all.equal(dim(list_in[[i]]), c(nroi, nroi)))) {
+      array_out[i,,] <-list_in[[i]]
+      incl_ar[i] <- TRUE
+    }
+  }
+  array_out <- array_out[incl_ar,,]
+  subnames <- subnames[incl_ar]
   if (flatten) {
     dimar <- dim(array_out)
     dim(array_out) <- c(dimar[1], dimar[2]*dimar[3])
   }
-  return(array_out)
+  return(list(array=array_out, incl_ar=incl_ar, names=subnames))
 }

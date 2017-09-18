@@ -45,12 +45,25 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
   tasks <- vector("character", length(fnames))
   gr <- list()
 
+  vertices <- c()
+
+  # so that we don't get any annoying errors if particular vertices are empty
+  for (i in 1:length(fnames)) {
+    tgr <- read_graph(fnames[i], format=fmt) # read the graph from the filename
+    if (!isTRUE(all.equal(V(tgr), order(V(tgr))))) {
+      vertices <- union(vertices, V(tgr))
+    }
+  }
+
+  vertices <- order(vertices)
+
   for (i in 1:length(fnames)) {
     basename <- basename(fnames[i])     # the base name of the file
     if (verbose) {
       print(paste('Loading', basename, '...'))
     }
-    tgr <- read_graph(fnames[i], format=fmt) # read the graph from the filename
+    tgr <- read_graph(fnames[i], format=fmt, predef=vertices) # read the graph from the filename, ordering by the vertices we found previously
+
     tgr <- get.adjacency(tgr, type="both", attr="weight", sparse=FALSE) # convert graph to adjacency matrix
     tgr[is.nan(tgr)] <- 0  # missing entries substituted with 0s
     gr[[basename]] <-t(tgr)
@@ -59,7 +72,13 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
     tasks[i] <- str_extract(basename, 'task(.?)+?(?=_)')
   }
   if (rtype == 'array') {
-    gr = fmriu.list2array(gr, flatten=flatten)
+    aro <- fmriu.list2array(gr, flatten=flatten)
+    gr <- aro$array
+    dataset <- dataset[aro$incl_ar]
+    atlas <- atlas[aro$incl_ar]
+    subjects <- subjects[aro$incl_ar]
+    sessions <- sessions[aro$incl_ar]
+    tasks <- tasks[aro$incl_ar]
   }
   return(list(graphs=gr, dataset=dataset, atlas=atlas, subjects=subjects,
               sessions=sessions, tasks=tasks))
