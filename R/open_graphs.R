@@ -24,19 +24,22 @@
 #' @return runs [n] the run ids
 #' @export
 fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphml', verbose=FALSE, rtype='list', flatten=FALSE) {
+  if (! (fmt %in% c('graphml', 'edgelist'))) {
+    stop('You have passed an invalid format type. Options are: [\'graphml\', \'edgelist\'].')
+  }
+
   if (is.character(fnames)) {
     fnames <- list.files(fnames, pattern=paste('\\.', fmt, sep=""), full.names=TRUE)
   }
+
   if (! (rtype %in% c('list', 'array'))) {
     stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
-  }
-  if (! (fmt %in% c('graphml', 'edgelist'))) {
-    stop('You have passed an invalid format type. Options are: [\'graphml\', \'edgelist\'].')
   }
 
   if (fmt == 'edgelist') {
     fmt <- 'ncol'  # i don't have a clue why this is necessary... blame igraph
   }
+
   print(sprintf("opening graphs for %s dataset and %s parcellation atlas...", dataset_id, atlas_id))
   subjects <- vector("character", length(fnames))
   dataset <- rep(dataset_id, length(fnames))
@@ -50,26 +53,31 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
   # so that we don't get any annoying errors if particular vertices are empty
   for (i in 1:length(fnames)) {
     tgr <- read_graph(fnames[i], format=fmt) # read the graph from the filename
-    if (!isTRUE(all.equal(V(tgr), order(V(tgr))))) {
-      vertices <- union(vertices, V(tgr))
-    }
+    vertices <- union(vertices, V(tgr))
   }
 
   vertices <- order(vertices)
-
+  counter <- 1
   for (i in 1:length(fnames)) {
     basename <- basename(fnames[i])     # the base name of the file
     if (verbose) {
       print(paste('Loading', basename, '...'))
     }
-    tgr <- read_graph(fnames[i], format=fmt, predef=vertices) # read the graph from the filename, ordering by the vertices we found previously
+    tgr <- tryCatch({
+      read_graph(fnames[i], format=fmt, predef=vertices) # read the graph from the filename, ordering by the vertices we found previously
+    }, error = function(e) {
+      return(NaN)
+    })
 
-    tgr <- get.adjacency(tgr, type="both", attr="weight", sparse=FALSE) # convert graph to adjacency matrix
-    tgr[is.nan(tgr)] <- 0  # missing entries substituted with 0s
-    gr[[basename]] <-t(tgr)
-    subjects[i] <- str_extract(basename, 'sub(.?)+?(?=_)')
-    sessions[i] <- str_extract(basename, 'ses(.?)+?(?=_)')
-    tasks[i] <- str_extract(basename, 'task(.?)+?(?=_)')
+    if (is.igraph(tgr)) {
+      tgr <- get.adjacency(tgr, type="both", attr="weight", sparse=FALSE) # convert graph to adjacency matrix
+      tgr[is.nan(tgr)] <- 0  # missing entries substituted with 0s
+      gr[[basename]] <-t(tgr)
+      subjects[counter] <- str_extract(basename, 'sub(.?)+?(?=_)')
+      sessions[counter] <- str_extract(basename, 'ses(.?)+?(?=_)')
+      tasks[counter] <- str_extract(basename, 'task(.?)+?(?=_)')
+      counter <- counter + 1
+    }
   }
   if (rtype == 'array') {
     aro <- fmriu.list2array(gr, flatten=flatten)
