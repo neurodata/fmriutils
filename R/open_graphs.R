@@ -50,9 +50,7 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
   # so that we don't get any annoying errors if particular vertices are empty
   for (i in 1:length(fnames)) {
     tgr <- read_graph(fnames[i], format=fmt) # read the graph from the filename
-    if (!isTRUE(all.equal(V(tgr), order(V(tgr))))) {
-      vertices <- union(vertices, V(tgr))
-    }
+    vertices <- union(vertices, V(tgr))
   }
 
   vertices <- order(vertices)
