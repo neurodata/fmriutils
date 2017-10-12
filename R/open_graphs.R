@@ -32,12 +32,12 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
     fnames <- list.files(fnames, pattern=paste('\\.', fmt, sep=""), full.names=TRUE)
   }
 
-  if (! (rtype %in% c('list', 'array'))) {
-    stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
+  if (fmt == 'edgelist') {
+    fmt = 'ncol'
   }
 
-  if (fmt == 'edgelist') {
-    fmt <- 'ncol'  # i don't have a clue why this is necessary... blame igraph
+  if (! (rtype %in% c('list', 'array'))) {
+    stop('You have passed an invalid return type. Options are: [\'list\', \'array\'].')
   }
 
   print(sprintf("opening graphs for %s dataset and %s parcellation atlas...", dataset_id, atlas_id))
@@ -52,7 +52,7 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
 
   # so that we don't get any annoying errors if particular vertices are empty
   for (i in 1:length(fnames)) {
-    tgr <- read_graph(fnames[i], format=fmt) # read the graph from the filename
+    tgr <- igraph::read_graph(fnames[i], format=fmt) # read the graph from the filename
     vertices <- union(vertices, V(tgr))
   }
 
@@ -64,7 +64,7 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
       print(paste('Loading', basename, '...'))
     }
     tgr <- tryCatch({
-      read_graph(fnames[i], format=fmt, predef=vertices) # read the graph from the filename, ordering by the vertices we found previously
+      igraph::read_graph(fnames[i], format=fmt, predef=vertices) # read the graph from the filename, ordering by the vertices we found previously
     }, error = function(e) {
       return(NaN)
     })
@@ -147,7 +147,13 @@ fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", g
     }
   }
   if (rtype == 'array') {
-    gr = fmriu.list2array(gr, flatten=flatten)
+    aro <- fmriu.list2array(gr, flatten=flatten)
+    gr <- aro$array
+    dataset <- dataset[aro$incl_ar]
+    atlas <- atlas[aro$incl_ar]
+    subjects <- subjects[aro$incl_ar]
+    sessions <- sessions[aro$incl_ar]
+    tasks <- tasks[aro$incl_ar]
   }
   return(list(graphs=gr, dataset=dataset, atlas=atlas, subjects=subjects,
               sessions=sessions, tasks=tasks, runs=runs))
