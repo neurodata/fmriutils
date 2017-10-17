@@ -42,8 +42,6 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
 
   print(sprintf("opening graphs for %s dataset and %s parcellation atlas...", dataset_id, atlas_id))
   subjects <- vector("character", length(fnames))
-  dataset <- rep(dataset_id, length(fnames))
-  atlas <- rep(atlas_id, length(fnames))
   sessions <- vector("character", length(fnames))
   tasks <- vector("character", length(fnames))
   gr <- list()
@@ -79,6 +77,10 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
       counter <- counter + 1
     }
   }
+
+  dataset <- rep(dataset_id, counter - 1)
+  atlas <- rep(atlas_id, counter - 1)
+
   if (rtype == 'array') {
     aro <- fmriu.list2array(gr, flatten=flatten)
     gr <- aro$array
@@ -156,5 +158,5 @@ fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", g
     tasks <- tasks[aro$incl_ar]
   }
   return(list(graphs=gr, dataset=dataset, atlas=atlas, subjects=subjects,
-              sessions=sessions, tasks=tasks, runs=runs))
+              sessions=sessions, tasks=tasks, runs=runs, incl_ar = aro$incl_ar))
 }

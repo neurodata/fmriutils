@@ -29,8 +29,6 @@ fmriu.io.open_timeseries <- function(fnames, dataset_id="", atlas_id="", verbose
 
   print(sprintf("opening timeseries for %s dataset and %s parcellation atlas...", dataset_id, atlas_id))
   subjects <- vector("character", length(fnames))
-  dataset <- rep(dataset_id, length(fnames))
-  atlas <- rep(atlas_id, length(fnames))
   sessions <- vector("character", length(fnames))
   tasks <- vector("character", length(fnames))
   runs <- vector("character", length(fnames))
@@ -48,6 +46,10 @@ fmriu.io.open_timeseries <- function(fnames, dataset_id="", atlas_id="", verbose
     tasks[i] <- str_extract(basename, '(?<=task-)(.*?)(?=[._])')
     runs[i] <- str_extract(basename, '(?<=run-)(.*?)(?=[._])')
   }
+
+  dataset <- rep(dataset_id, counter - 1)
+  atlas <- rep(atlas_id, counter - 1)
+
   if (rtype == 'array') {
     ts = fmriu.list2array(ts)
   }
