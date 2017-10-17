@@ -80,6 +80,9 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="", fmt='graphm
 
   dataset <- rep(dataset_id, counter - 1)
   atlas <- rep(atlas_id, counter - 1)
+  subjects <- subjects[1:counter - 1]
+  sessions <- sessions[1:counter - 1]
+  tasks <- tasks[1:counter - 1]
 
   if (rtype == 'array') {
     aro <- fmriu.list2array(gr, flatten=flatten)
