@@ -161,5 +161,5 @@ fmriu.io.collection.open_graphs <- function(basepath, datasets="", atlases="", g
     tasks <- tasks[aro$incl_ar]
   }
   return(list(graphs=gr, dataset=dataset, atlas=atlas, subjects=subjects,
-              sessions=sessions, tasks=tasks, runs=runs, incl_ar = aro$incl_ar))
+              sessions=sessions, tasks=tasks, runs=runs))
 }
