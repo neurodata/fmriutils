@@ -37,12 +37,15 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="",
                                  fmt='elist', verbose=FALSE, rtype='list', flatten=FALSE,
                                  rem.diag=TRUE) {
   if (! (fmt %in% c('adj', 'elist'))) {
-    stop('You have passed an invalid format type. Options are: [\'adj\', \'elist\'].')
+    stop('You have passed an invalid format type. Options are: [\'adj\', \'elist\', and \'graphml\'].')
   }
 
   if (fmt == 'elist') {
-    fmt = 'ncol'
-    ext = "csv"
+    fmt = 'ncol'; ext = "csv"
+  } else if (fmt == "graphml") {
+    fmt = "graphml"; ext = "graphml"
+  } else if (fmt == "adj") {
+    fmt = "adj"; ext="adj"
   }
 
   if (is.character(fnames)) {
@@ -62,9 +65,13 @@ fmriu.io.open_graphs <- function(fnames, dataset_id="", atlas_id="",
   vertices <- c()
 
   # so that we don't get any annoying errors if particular vertices are empty
-  for (i in 1:length(fnames)) {
-    tgr <- igraph::read_graph(fnames[i], format=fmt) # read the graph from the filename
-    vertices <- union(vertices, V(tgr))
+  if (fmt != "adj") {
+    for (i in 1:length(fnames)) {
+      tgr <- igraph::read_graph(fnames[i], format=fmt) # read the graph from the filename
+      vertices <- union(vertices, V(tgr))
+    }
+  } else {
+
   }
 
   vertices <- order(vertices)
